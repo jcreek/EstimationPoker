@@ -5,4 +5,3 @@
 </script>
 
 <h1>Estimation Poker</h1>
-
