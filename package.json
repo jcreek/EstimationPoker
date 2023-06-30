@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "vite dev && netlify dev",
+		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -28,6 +28,7 @@
 	"type": "module",
 	"dependencies": {
 		"@netlify/functions": "^1.6.0",
+		"uuid": "^9.0.0",
 		"ws": "^8.13.0"
 	}
 }

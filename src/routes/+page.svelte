@@ -1,7 +1,8 @@
-<script lang="ts">
-	import type { PageData } from './$types';
+<script>
+	import {generateRoomID} from './estimation/estimation.js';
 
-	export let data: PageData;
+	let roomID = generateRoomID();
+	console.log(roomID);
 </script>
 
 <h1>Estimation Poker</h1>

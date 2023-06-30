@@ -1,8 +1,20 @@
 <script lang="ts">
+	/** @type {import('./$types').PageData} */
+    export let data;
+
 	import { onMount } from 'svelte';
-	import UsersList from '../../components/UsersList.svelte';
-	import EstimateGroupsList from '../../components/EstimateGroupsList.svelte';
-	import AverageEstimate from '../../components/AverageEstimate.svelte';
+	import UsersList from '../../../components/UsersList.svelte';
+	import EstimateGroupsList from '../../../components/EstimateGroupsList.svelte';
+	import AverageEstimate from '../../../components/AverageEstimate.svelte';
+	import { connectToWebSocket, sendMessage } from '../estimation.js';
+
+	let socket;
+	console.log(data.roomId);
+
+	onMount(() => {
+		// Connect to WebSocket server with the room ID
+		socket = connectToWebSocket(data.roomId);
+	});
 
 	let estimates = [
 		{ name: 'User 1', estimate: 8 },
