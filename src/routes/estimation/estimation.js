@@ -6,7 +6,7 @@ function generateRoomID() {
 }
 
 function connectToWebSocket(roomID, onMessageReceived) {
-    const socketPath = `.netlify/functions/websocket/${roomID}`;
+    const socketPath = `.netlify/functions/websocket`;
 	let socket = new WebSocket(`wss://estimationpoker.jcreek.co.uk/${socketPath}`);
 	
     // const isDevelopment = import.meta.env.DEV;
@@ -17,7 +17,7 @@ function connectToWebSocket(roomID, onMessageReceived) {
 	// }
 
 	socket.addEventListener('open', () => {
-		console.log('Connected to WebSocket server');
+		console.log(`Connected to WebSocket server from roomID: ${roomId}`);
 	});
 
 	socket.addEventListener('message', (event) => {
