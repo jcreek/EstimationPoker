@@ -1,5 +1,3 @@
-// websocket.js
-
 import { Server, OPEN } from 'ws';
 
 const handler = async (event, context) => {
