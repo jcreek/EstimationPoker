@@ -1,11 +1,13 @@
 import express from 'express';
 import { WebSocketServer, WebSocket } from 'ws';
+import { Room } from './classes/Room.js';
+import { User } from './classes/User.js';
+import { JoinRoomMessage } from './classes/messages/JoinRoomMessage.js';
+import { ChangeEstimateMessage } from './classes/messages/ChangeEstimateMessage.js';
+import { SelectEstimateMessage } from './classes/messages/SelectEstimateMessage.js';
 
 const app = express();
 const port = process.env.PORT || 3000;
-
-const clients = new Map();
-const estimates = new Map();
 
 function onSocketPreError(e: Error) {
 	console.log(e);
@@ -17,13 +19,14 @@ function onSocketPostError(e: Error) {
 
 console.log(`Attempting to run server on port ${port}`);
 
-const s = app.listen(port, () => {
+const server = app.listen(port, () => {
 	console.log(`Listening on port ${port}`);
 });
 
 const wss = new WebSocketServer({ noServer: true });
+const rooms = new Set<Room>();
 
-s.on('upgrade', (req, socket, head) => {
+server.on('upgrade', (req, socket, head) => {
 	socket.on('error', onSocketPreError);
 
 	// perform auth
@@ -39,67 +42,113 @@ s.on('upgrade', (req, socket, head) => {
 	});
 });
 
-wss.on('connection', (ws, req) => {
-	ws.on('error', onSocketPostError);
+wss.on('connection', (ws: WebSocket, req) => {
+	let room: Room | null = null;
 
-	let roomId: string;
+	ws.on('error', onSocketPostError);
 
 	ws.on('message', (message) => {
 		const data = JSON.parse(message.toString());
 
 		if (data.type === 'join-room') {
-			roomId = data.roomId;
-			clients.set(ws, roomId);
-			broadcast(roomId, { type: 'user-joined', message: 'A new user has joined the room' });
-		} else if (data.type === 'select-estimate') {
-			const { user, estimate } = data;
+			const joinRoomMessage: JoinRoomMessage = data as JoinRoomMessage;
+			const { roomId, userId, name } = joinRoomMessage;
+			room = getRoomById(roomId);
 
-			if (!estimates.has(roomId)) {
-				estimates.set(roomId, new Map());
+			// Create room if it doesn't already exist
+			if (!room) {
+				room = new Room(roomId);
+				rooms.add(room);
 			}
-			estimates.get(roomId).set(user, estimate);
 
-			broadcast(roomId, { type: 'estimate-selected', user, estimate });
+			// Create the user in the room
+			const user = new User(userId, name);
+			room.addUser(ws, user);
 
-			// Check if all users have selected an estimate
-			if (estimates.get(roomId).size === clientsInRoom(roomId).length) {
-				broadcast(roomId, { type: 'estimation-closed', message: 'Estimation closed' });
+			broadcastToRoom(roomId, { type: 'user-joined', message: `${name} has joined the room` });
+		} else if (data.type === 'select-estimate') {
+			const selectEstimateMessage: SelectEstimateMessage = data as SelectEstimateMessage;
+			const { userId, estimate } = selectEstimateMessage;
+
+			if (room) {
+				const user = room.getUserByWebSocket(ws);
+				if (user) {
+					user.estimate = estimate;
+					broadcastToRoom(room.id, { type: 'estimate-selected', userId, estimate });
+
+					const allEstimates = room.getAllEstimates();
+					if (allEstimates.size === room.getUsers().length) {
+						broadcastToRoom(room.id, { type: 'estimation-closed', message: 'Estimation closed' });
+					}
+				}
 			}
 		} else if (data.type === 'change-estimate') {
-			const { user, estimate } = data;
+			const changeEstimateMessage: ChangeEstimateMessage = data as ChangeEstimateMessage;
+			const { userId, estimate } = changeEstimateMessage;
 
-			if (estimates.has(roomId)) {
-				estimates.get(roomId).set(user, estimate);
-				broadcast(roomId, { type: 'estimate-changed', user, estimate });
+			if (room) {
+				const user = room.getUserByWebSocket(ws);
+				if (user) {
+					user.estimate = estimate;
+					broadcastToRoom(room.id, { type: 'estimate-changed', userId, estimate });
+				}
+
+				const allEstimates = room.getAllEstimates();
+				if (allEstimates.size === room.getUsers().length) {
+					broadcastToRoom(room.id, { type: 'estimation-closed', message: 'Estimation closed' });
+				}
+			}
+		} else if (data.type === 'restart-estimation') {
+			if (room) {
+				room.clearEstimates();
+				broadcastToRoom(room.id, { type: 'estimation-restarted', message: 'Estimation restarted' });
 			}
 		}
 	});
 
 	ws.on('close', () => {
-		const user = clients.get(ws);
-		clients.delete(ws);
+		if (room) {
+			const user = room.getUserByWebSocket(ws);
+			if (user) {
+				room.removeUser(ws);
 
-		if (estimates.has(roomId)) {
-			estimates.get(roomId).delete(user);
+				if (room.getUsers().length === 0) {
+					rooms.delete(room);
+					broadcastToRoom(room.id, {
+						type: 'room-deleted',
+						message: 'Room deleted'
+					});
+				}
 
-			if (estimates.get(roomId).size === 0) {
-				estimates.delete(roomId);
-				broadcast(roomId, { type: 'estimation-started', message: 'Estimation started again' });
+				broadcastToRoom(room.id, {
+					type: 'user-left',
+					message: `${user.userId} has left the room`
+				});
 			}
 		}
-
-		broadcast(roomId, { type: 'user-left', message: `${user} has left the room` });
 	});
 });
 
-function broadcast(roomId: string, message: any) {
-	wss.clients.forEach((client) => {
-		if (clients.get(client) === roomId && client.readyState === WebSocket.OPEN) {
-			client.send(JSON.stringify(message));
-		}
-	});
+function broadcastToRoom(roomId: string, message: any) {
+	const room = getRoomById(roomId);
+	if (room) {
+		room.broadcast(message);
+	}
 }
 
-function clientsInRoom(roomId: string) {
-	return [...clients.values()].filter((id) => id === roomId);
+function getUsersInRoom(roomId: string) {
+	const room = getRoomById(roomId);
+	if (room) {
+		return room.getUsers();
+	}
+	return [];
+}
+
+function getRoomById(roomId: string) {
+	for (const room of rooms) {
+		if (room.id === roomId) {
+			return room;
+		}
+	}
+	return null;
 }
