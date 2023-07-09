@@ -5,16 +5,14 @@ function generateRoomID() {
 	return id;
 }
 
-function connectToWebSocket(roomID, onMessageReceived) {
-    const socketPath = `.netlify/functions/websocket`;
-	let socket = new WebSocket(`wss://estimationpoker.jcreek.co.uk/${socketPath}`);
-	
-    // const isDevelopment = import.meta.env.DEV;
-	// if (isDevelopment) {
-	// 	socket = new WebSocket(`wss://localhost:4173/${socketPath}`);
-	// } else {
-	// 	socket = new WebSocket(`wss://estimationpoker.jcreek.co.uk/${socketPath}`);
-	// }
+function connectToWebSocket(roomId, onMessageReceived) {
+	let socket;
+    const isDevelopment = import.meta.env.DEV;
+	if (isDevelopment) {
+		socket = new WebSocket(`ws://localhost:3000`);
+	} else {
+		socket = new WebSocket(`wss://estimationpoker.jcreek.co.uk`);
+	}
 
 	socket.addEventListener('open', () => {
 		console.log(`Connected to WebSocket server from roomID: ${roomId}`);
