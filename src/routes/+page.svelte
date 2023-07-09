@@ -1,9 +1,9 @@
 <script>
-	import { generateRoomId } from './estimation/estimation.js';
+	import { generateId } from './estimation/estimation.js';
 	import { goto } from '$app/navigation';
 
 	function startARoom() {
-		const roomId = generateRoomId();
+		const roomId = generateId();
 		goto(`/estimation/${roomId}`);
 	}
 </script>
