@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-function generateRoomID() {
+function generateRoomId() {
 	const id = uuidv4();
 	return id;
 }
@@ -15,7 +15,7 @@ function connectToWebSocket(roomId, onMessageReceived) {
 	}
 
 	socket.addEventListener('open', () => {
-		console.log(`Connected to WebSocket server from roomID: ${roomId}`);
+		console.log(`Connected to WebSocket server from roomId: ${roomId}`);
 	});
 
 	socket.addEventListener('message', (event) => {
@@ -34,4 +34,4 @@ function sendMessage(socket, message) {
 	socket.send(JSON.stringify(message));
 }
 
-export { generateRoomID, connectToWebSocket, sendMessage };
+export { generateRoomId, connectToWebSocket, sendMessage };
