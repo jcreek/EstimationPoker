@@ -9,11 +9,11 @@
 	import Modal from '../../../components/Modal.svelte';
 
 	import { connectToWebSocket, sendMessage, generateId } from '../estimation.js';
-	import { User } from '../../../../server/classes/user';
-	import { Room } from '../../../../server/classes/room';
-	import { ChangeEstimateMessage } from '../../../../server/classes/messages/ChangeEstimateMessage';
-	import { JoinRoomMessage } from '../../../../server/classes/messages/JoinRoomMessage';
-	import { SelectEstimateMessage } from '../../../../server/classes/messages/SelectEstimateMessage';
+	import { User } from '../../../server/classes/user';
+	import { Room } from '../../../server/classes/room';
+	import { ChangeEstimateMessage } from '../../../server/classes/messages/ChangeEstimateMessage';
+	import { JoinRoomMessage } from '../../../server/classes/messages/JoinRoomMessage';
+	import { SelectEstimateMessage } from '../../../server/classes/messages/SelectEstimateMessage';
 
 	let socket;
 	let showModal = true;
