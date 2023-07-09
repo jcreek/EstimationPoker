@@ -9,11 +9,20 @@
 	import Modal from '../../../components/Modal.svelte';
 
 	import { connectToWebSocket, sendMessage, generateId } from '../estimation.js';
-	import { User } from '../../../server/classes/user';
-	import { Room } from '../../../server/classes/room';
-	import { ChangeEstimateMessage } from '../../../server/classes/messages/ChangeEstimateMessage';
-	import { JoinRoomMessage } from '../../../server/classes/messages/JoinRoomMessage';
-	import { SelectEstimateMessage } from '../../../server/classes/messages/SelectEstimateMessage';
+
+	class JoinRoomMessage {
+		type: string;
+		roomId: string;
+		userId: string;
+		name: string;
+
+		constructor(roomId: string, userId: string, name: string) {
+			this.type = 'join-room';
+			this.roomId = roomId;
+			this.userId = userId;
+			this.name = name;
+		}
+	}
 
 	let socket;
 	let showModal = true;
@@ -36,7 +45,7 @@
 
 	function onMessageReceived(message) {
 		console.log(message);
-	};
+	}
 
 	onMount(() => {
 		// Connect to WebSocket server with the room ID
