@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye
+
+    # Runs app on the same network as the websocket server container, allows "forwardPorts" in devcontainer.json function.
+    network_mode: service:websocket
+
+  websocket:
+    image: "node:20"
+    user: "node"
+    working_dir: /home/node/app
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./:/home/node/app
+    expose:
+      - "8081"
+    command: "npm start"
+    restart: unless-stopped
