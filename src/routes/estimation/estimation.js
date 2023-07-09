@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-function generateRoomId() {
+function generateId() {
 	const id = uuidv4();
 	return id;
 }
@@ -34,4 +34,4 @@ function sendMessage(socket, message) {
 	socket.send(JSON.stringify(message));
 }
 
-export { generateRoomId, connectToWebSocket, sendMessage };
+export { generateId, connectToWebSocket, sendMessage };
