@@ -2,14 +2,15 @@
 	/** @type {import('./$types').PageData} */
 	export let data;
 
-	import { onMount, afterUpdate } from 'svelte';
+	import { onMount } from 'svelte';
 	import UsersList from '../../../components/UsersList.svelte';
 	import EstimateGroupsList from '../../../components/EstimateGroupsList.svelte';
 	import AverageEstimate from '../../../components/AverageEstimate.svelte';
 	import Modal from '../../../components/Modal.svelte';
+	import Estimates from '../../../components/Estimates.svelte';
 
 	import { connectToWebSocket, sendMessage, generateId } from '../estimation.js';
-
+	
 	class JoinRoomMessage {
 		type: string;
 		roomId: string;
@@ -24,98 +25,109 @@
 		}
 	}
 
+	class SelectEstimateMessage {
+		type: string;
+		roomId: string;
+		userId: string;
+		estimate: number;
+
+		constructor(roomId: string, userId: string, estimate: number) {
+			this.type = 'select-estimate';
+			this.roomId = roomId;
+			this.userId = userId;
+			this.estimate = estimate;
+		}
+	}
+
+	class User {
+		userId: string;
+		name: string;
+		estimate: number | null;
+
+		constructor(userId: string, name: string, estimate: number | null = null) {
+			this.userId = userId;
+			this.name = name;
+			this.estimate = estimate;
+		}
+	}
+
 	let socket;
 	let showModal = true;
-	let currentUserIndex = -1;
-	let userEstimateFields: HTMLInputElement[] = [];
+	const userId = generateId();
+	let users: Array<User> = [];
+	let average: number;
+	let estimateGroups: { [key: number]: string[] } = {};
+	let showRestartButton = false;
+	let showEstimates = false;
 
 	function closeModal() {
 		showModal = false;
 	}
 
-	afterUpdate(() => {
-		// Disable all estimate fields
-		userEstimateFields.forEach((field) => (field.disabled = true));
+	function joinRoom(name: string) {
+		sendMessage(socket, new JoinRoomMessage(data.roomId, userId, name));
+	}
 
-		// Enable the estimate field for the current user
-		if (currentUserIndex !== -1) {
-			userEstimateFields[currentUserIndex].disabled = false;
+	function updateUser(userId: string, name: string, estimate: number | null) {
+		const existingUser = users.find((user) => user.userId === userId);
+
+		if (existingUser) {
+			// User exists, update the estimate
+			existingUser.estimate = estimate;
+		} else {
+			// User doesn't exist, add a new User object
+			const newUser = new User(userId, name, estimate);
+			users.push(newUser);
+			users = [...users];
 		}
-	});
+	}
+
+	function handleEstimateClick(estimate: number) {
+		sendMessage(socket, new SelectEstimateMessage(data.roomId, userId, estimate));
+	}
+
+	function restartEstimation() {
+		sendMessage(socket, { roomId: data.roomId, type: 'restart-estimation' });
+	}
 
 	function onMessageReceived(message) {
 		console.log(message);
+
+		if (message.type === 'user-joined') {
+			sendMessage(socket, { type: 'get-user-estimates' });
+		} else if (message.type === 'user-estimates') {
+			message.users.forEach((user) => {
+				let updatedUser = users.find((u) => u.userId === user.userId);
+				if (updatedUser === undefined) {
+					const newUser = new User(user.userId, user.name, user.estimate);
+					users.push(newUser);
+				} else {
+					updatedUser.estimate = user.estimate;
+				}
+			});
+
+			users = [...users];
+		} else if (message.type === 'estimate-selected') {
+			updateUser(message.userId, message.name, message.estimate);
+			users = [...users];
+		} else if (message.type === 'user-left') {
+			users = users.filter((user) => user.userId !== message.userId);
+		} else if (message.type === 'estimation-closed') {
+			average = message.average;
+			estimateGroups = message.groupedEstimates;
+			showRestartButton = true;
+			showEstimates = true;
+		} else if (message.type === 'estimation-restarted') {
+			estimateGroups = {};
+			showRestartButton = false;
+			showEstimates = false;
+			sendMessage(socket, { type: 'get-user-estimates' });
+		}
 	}
 
 	onMount(() => {
-		// Connect to WebSocket server with the room ID
 		socket = connectToWebSocket(data.roomId, onMessageReceived);
-
-		// // Initialize the userEstimateFields array
-		// userEstimateFields = Array.from(
-		// 	document.querySelectorAll('.estimate-field')
-		// ) as HTMLInputElement[];
-
-		// groupEstimates();
 	});
-
-	function joinRoom(name: string) {
-		sendMessage(socket, new JoinRoomMessage(data.roomId, generateId(), name));
-	}
-
-	let estimates = [];
-	// let estimates = [
-	// 	{ name: 'User 1', estimate: 8 },
-	// 	{ name: 'User 2', estimate: 8 },
-	// 	{ name: 'User 3', estimate: 13 },
-	// 	{ name: 'User 4', estimate: 13 },
-	// 	{ name: 'User 5', estimate: 13 },
-	// 	{ name: 'User 6', estimate: 21 },
-	// 	{ name: 'User 7', estimate: 21 },
-	// 	{ name: 'User 8', estimate: 21 },
-	// 	{ name: 'User 9', estimate: 34 },
-	// 	{ name: 'User 10', estimate: 34 },
-	// 	{ name: 'User 11', estimate: 34 },
-	// 	{ name: 'User 12', estimate: 34 },
-	// 	{ name: 'User 13', estimate: 55 },
-	// 	{ name: 'User 14', estimate: 55 },
-	// 	{ name: 'User 15', estimate: 55 }
-	// ];
-
-	// Group users by their estimates
-	let estimateGroups: { [key: number]: string[] } = {};
-
-	function groupEstimates() {
-		estimateGroups = {};
-		estimates.forEach((estimate) => {
-			if (estimate.estimate !== null) {
-				if (estimateGroups[estimate.estimate]) {
-					estimateGroups[estimate.estimate].push(estimate.name);
-				} else {
-					estimateGroups[estimate.estimate] = [estimate.name];
-				}
-			}
-		});
-	}
-
-	// function calculateAverageEstimate() {
-	// 	let total = 0;
-	// 	estimates.forEach((estimate) => {
-	// 		if (estimate.estimate !== null) {
-	// 			total += estimate.estimate;
-	// 		}
-	// 	});
-	// 	return total / estimates.length;
-	// }
-
-	// let average = calculateAverageEstimate();
-
-	// function handleEstimateChange(event: any, user: any) {
-	// 	const { value } = event.target;
-	// 	user.estimate = value !== '' ? Number(value) : null;
-	// 	groupEstimates();
-	// 	average = calculateAverageEstimate();
-	// }
 </script>
 
 <h1>Estimation Page</h1>
@@ -124,12 +136,28 @@
 	<Modal {closeModal} {joinRoom} />
 {/if}
 
-<!-- <UsersList {estimates} {handleEstimateChange} bind:this={userEstimateFields} />
+{#if showRestartButton}
+	<button
+		on:click={() => restartEstimation()}
+		on:keydown={(event) => {
+			if (event.key === 'Enter' || event.key === ' ') {
+				event.preventDefault();
+				restartEstimation();
+			}
+		}}
+		aria-label={'restart estimation'}
+		tabindex="0">Restart estimation</button
+	>
+{/if}
+
+<UsersList {users} {showEstimates} />
+
+<Estimates onEstimateClick={handleEstimateClick} />
 
 {#if Object.keys(estimateGroups).length > 0}
 	<EstimateGroupsList {estimateGroups} />
 	<AverageEstimate {average} />
-{/if} -->
+{/if}
 
 <style>
 	/* CSS styles */
