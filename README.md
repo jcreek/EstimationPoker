@@ -6,13 +6,6 @@ There are two components to this:
 1. Frontend, built using SvelteKit
 2. WebSockets server, built using Node.js
 
-## To Do
-
-- add estimate
-- change estimate
-- reveal estimates (aka stop estimation)
-- restart estimation
-
 ## Potential Enhancements
 
 - throw emoji at people
