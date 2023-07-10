@@ -9,9 +9,9 @@ function connectToWebSocket(roomId, onMessageReceived) {
 	let socket;
     const isDevelopment = import.meta.env.DEV;
 	if (isDevelopment) {
-		socket = new WebSocket(`ws://localhost:3000`);
+		socket = new WebSocket(`ws://localhost:8080`);
 	} else {
-		socket = new WebSocket(`wss://estimationpoker.jcreek.co.uk`);
+		socket = new WebSocket(`ws://jcreek.ddns.net`);
 	}
 
 	socket.addEventListener('open', () => {
