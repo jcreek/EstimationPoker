@@ -17,6 +17,31 @@ function onSocketPostError(e: Error) {
 	console.log(e);
 }
 
+function calculateAverageEstimate(users: Array<User>) {
+	let total = 0;
+	users.forEach((user) => {
+		if (user.estimate !== null) {
+			total += user.estimate;
+		}
+	});
+	return total / users.length;
+}
+
+function groupEstimates(users: Array<User>) {
+	let estimateGroups: { [key: number]: string[] } = {};
+	users.forEach((user) => {
+		if (user.estimate !== null) {
+			if (estimateGroups[user.estimate]) {
+				estimateGroups[user.estimate].push(user.name);
+			} else {
+				estimateGroups[user.estimate] = [user.name];
+			}
+		}
+	});
+
+	return estimateGroups;
+}
+
 console.log(`Attempting to run server on port ${port}`);
 
 const server = app.listen(port, () => {
@@ -74,34 +99,30 @@ wss.on('connection', (ws: WebSocket, req) => {
 				const user = room.getUserByWebSocket(ws);
 				if (user) {
 					user.estimate = estimate;
-					broadcastToRoom(room.id, { type: 'estimate-selected', userId, estimate });
+					broadcastToRoom(room.id, {
+						type: 'estimate-selected',
+						userId,
+						name: user.name,
+						estimate
+					});
 
 					const allEstimates = room.getAllEstimates();
 					if (allEstimates.size === room.getUsers().length) {
-						broadcastToRoom(room.id, { type: 'estimation-closed', message: 'Estimation closed' });
+						const users = room.getUsers();
+						const average = calculateAverageEstimate(users);
+						broadcastToRoom(room.id, { type: 'estimation-closed', average, groupedEstimates: groupEstimates(users)});
 					}
-				}
-			}
-		} else if (data.type === 'change-estimate') {
-			const changeEstimateMessage: ChangeEstimateMessage = data as ChangeEstimateMessage;
-			const { userId, estimate } = changeEstimateMessage;
-
-			if (room) {
-				const user = room.getUserByWebSocket(ws);
-				if (user) {
-					user.estimate = estimate;
-					broadcastToRoom(room.id, { type: 'estimate-changed', userId, estimate });
-				}
-
-				const allEstimates = room.getAllEstimates();
-				if (allEstimates.size === room.getUsers().length) {
-					broadcastToRoom(room.id, { type: 'estimation-closed', message: 'Estimation closed' });
 				}
 			}
 		} else if (data.type === 'restart-estimation') {
 			if (room) {
 				room.clearEstimates();
-				broadcastToRoom(room.id, { type: 'estimation-restarted', message: 'Estimation restarted' });
+				broadcastToRoom(room.id, { type: 'estimation-restarted' });
+			}
+		} else if (data.type === 'get-user-estimates') {
+			if (room) {
+				const users = room.getUsers();
+				broadcastToRoom(room.id, { type: 'user-estimates', users });
 			}
 		}
 	});
@@ -122,7 +143,7 @@ wss.on('connection', (ws: WebSocket, req) => {
 
 				broadcastToRoom(room.id, {
 					type: 'user-left',
-					message: `${user.userId} has left the room`
+					userId: user.userId
 				});
 			}
 		}
