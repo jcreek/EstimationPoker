@@ -11,7 +11,7 @@ function connectToWebSocket(roomId, onMessageReceived) {
 	if (isDevelopment) {
 		socket = new WebSocket(`ws://localhost:8080`);
 	} else {
-		socket = new WebSocket(`ws://websocket.jcreek.co.uk`);
+		socket = new WebSocket(`wss://websocket.jcreek.co.uk`);
 	}
 
 	socket.addEventListener('open', () => {
