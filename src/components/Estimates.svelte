@@ -35,7 +35,7 @@
 		border: 1px solid #ccc;
 		border-radius: 8px;
 		margin: 10px;
-		background-color: #6bb0d5;
+		background-color: #45A7C4;
 		color: #fff;
 		text-align: center;
 		cursor: pointer;
