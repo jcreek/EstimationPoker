@@ -4,8 +4,24 @@
 	export let userId: string;
 
 	let customEmoji = '💩';
+	let shieldActive = false;
 
 	function handleCardClick(cardId) {
+		// Get the user from the cardId
+		let user = users.find((user) => `user-card-${user.userId}` === cardId);
+
+		// If the user is Tristan, activate the shield
+		if (user && user.name === 'Tristan') {
+			shieldActive = true;
+
+			// After 2 seconds, remove the shield
+			setTimeout(() => {
+				shieldActive = false;
+			}, 2000);
+
+			return;
+		}
+
 		let times = Math.floor(Math.random() * 3) + 3; // Random number between 3 and 5
 		for (let i = 0; i < times; i++) {
 			let timeout = Math.random() * 100 + 100 * i; // Random number between 100 and 200, multiplied by i to stagger the emojis
@@ -27,10 +43,8 @@
 		let startX = Math.random() < 0.5 ? -100 : window.innerWidth + 100;
 		let startY = Math.random() * (window.innerHeight < 300 ? window.innerHeight : 300) * -1;
 
-		let endX = startX < window.innerWidth / 2 ? targetRect.left-20 : targetRect.right;
+		let endX = startX < window.innerWidth / 2 ? targetRect.left - 20 : targetRect.right;
 		let endY = (targetRect.top + targetRect.height / 2 + window.scrollY) * -1;
-
-		
 
 		// Create keyframes
 		let endXOffset = startX < endX ? -50 : 50; // Determine direction based on startX and endX
@@ -88,6 +102,7 @@
 					class="user-card"
 					class:user-card-null={user.estimate === null}
 					class:user-card-green={user.estimate !== null}
+					class:user-card-shield={user.name === 'Tristan' && shieldActive}
 					on:click={() => handleCardClick(`user-card-${user.userId}`)}
 				>
 					{#if user.estimate !== null && (showEstimates || user.userId === userId)}
@@ -194,6 +209,23 @@
 		}
 		to {
 			opacity: 0;
+		}
+	}
+
+	.user-card-shield {
+		box-shadow: 0 0 10px 5px rgba(0, 0, 255, 0.5);
+		animation: pulse 2s infinite;
+	}
+
+	@keyframes pulse {
+		0% {
+			box-shadow: 0 0 10px 5px rgba(0, 0, 255, 0.5);
+		}
+		50% {
+			box-shadow: 0 0 20px 10px rgba(0, 0, 255, 0.75), 0 0 30px 10px rgba(0, 0, 255, 0.5);
+		}
+		100% {
+			box-shadow: 0 0 10px 5px rgba(0, 0, 255, 0.5);
 		}
 	}
 </style>
