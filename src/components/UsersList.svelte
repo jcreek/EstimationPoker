@@ -2,16 +2,93 @@
 	export let users: any;
 	export let showEstimates: boolean = false;
 	export let userId: string;
+
+	let customEmoji = '💩';
+
+	function handleCardClick(cardId) {
+		let times = Math.floor(Math.random() * 3) + 3; // Random number between 3 and 5
+		for (let i = 0; i < times; i++) {
+			let timeout = Math.random() * 100 + 100 * i; // Random number between 100 and 200, multiplied by i to stagger the emojis
+			setTimeout(() => addEmojiToElement(cardId, customEmoji), timeout);
+		}
+	}
+
+	function addEmojiToElement(elementId, emoji) {
+		let emojiElement = document.createElement('div');
+		emojiElement.innerText = emoji;
+		emojiElement.style.position = 'fixed';
+		emojiElement.style.fontSize = '20px';
+		emojiElement.style.zIndex = '10';
+
+		// Location of the clicked card
+		let targetElement = document.getElementById(elementId);
+		let targetRect = targetElement.getBoundingClientRect();
+
+		let startX = Math.random() < 0.5 ? -100 : window.innerWidth + 100;
+		let startY = Math.random() * (window.innerHeight < 300 ? window.innerHeight : 300) * -1;
+
+		let endX = startX < window.innerWidth / 2 ? targetRect.left-20 : targetRect.right;
+		let endY = (targetRect.top + targetRect.height / 2 + window.scrollY) * -1;
+
+		
+
+		// Create keyframes
+		let endXOffset = startX < endX ? -50 : 50; // Determine direction based on startX and endX
+
+		let keyframes = [
+			{
+				transform: `translate(${startX}px, ${startY}px)`,
+				opacity: '1'
+			},
+			{
+				transform: `translate(${(startX + endX) / 2}px, ${(startY + endY) / 2 - 25}px)`, // Midway point, subtract less from Y to create a lower arc
+				offset: 0.3 // Adjust this value
+			},
+			{
+				transform: `translate(${endX}px, ${endY}px)`,
+				offset: 0.6 // Adjust this value
+			},
+			{
+				transform: `translate(${endX + endXOffset}px, ${endY + 100}px)`,
+				opacity: '1',
+				offset: 0.95
+			},
+			{
+				transform: `translate(${endX + endXOffset}px, ${endY + 100}px)`,
+				opacity: '0'
+			}
+		];
+
+		// Animation options
+		let options = {
+			duration: 2000,
+			easing: 'ease-in-out',
+			fill: 'forwards'
+		};
+
+		// Start animation
+		emojiElement.animate(keyframes, options);
+
+		document.body.appendChild(emojiElement);
+
+		// Cleanup after animation is done
+		setTimeout(() => {
+			document.body.removeChild(emojiElement);
+		}, 2000);
+	}
 </script>
 
 <div id="users-list">
 	<div class="users-container">
-		{#each users as user}
+		{#each users as user (user.userId)}
 			<div class="user-wrapper">
 				<div class="name">{user.name}</div>
-				<div class="user-card"
+				<div
+					id={`user-card-${user.userId}`}
+					class="user-card"
 					class:user-card-null={user.estimate === null}
 					class:user-card-green={user.estimate !== null}
+					on:click={() => handleCardClick(`user-card-${user.userId}`)}
 				>
 					{#if user.estimate !== null && (showEstimates || user.userId === userId)}
 						<p class="estimate">{user.estimate}</p>
@@ -21,6 +98,8 @@
 		{/each}
 	</div>
 </div>
+
+<!-- <input type="text" bind:value={customEmoji} placeholder="Enter your custom emoji" /> -->
 
 <style>
 	#users-list {
@@ -80,5 +159,41 @@
 	.name {
 		font-size: 16px;
 		margin-bottom: 5px;
+	}
+
+	.emoji {
+		width: 40px;
+		height: 40px;
+		position: absolute;
+		opacity: 1;
+		animation: fly 2s, fadeOut 0.5s 2s;
+		animation-fill-mode: forwards;
+	}
+
+	@keyframes fly {
+		0% {
+			opacity: 0;
+			transform: scale(0);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		75% {
+			transform: translateY(-20%);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes fadeOut {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 0;
+		}
 	}
 </style>
