@@ -9,15 +9,15 @@
 	let shieldActive = false;
 
 	const handleEmojiSelected = (event) => {
-        customEmoji = event.detail.emoji;
-    };
+		customEmoji = event.detail.emoji;
+	};
 
 	function handleCardClick(cardId) {
 		// Get the user from the cardId
 		let user = users.find((user) => `user-card-${user.userId}` === cardId);
 
-		// If the user is Tristan, activate the shield
-		if (user && user.name === 'Tristan') {
+		// If the user is Tristan and the selected emoji is poop, activate the shield
+		if (user && user.name === 'Tristan' && customEmoji === '💩') {
 			shieldActive = true;
 
 			// After 2 seconds, remove the shield
@@ -98,7 +98,7 @@
 	}
 </script>
 
-<EmojiPicker on:emojiSelected="{handleEmojiSelected}" />
+<EmojiPicker on:emojiSelected={handleEmojiSelected} />
 
 <div id="users-list">
 	<div class="users-container">
