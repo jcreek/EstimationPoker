@@ -47,7 +47,7 @@
 		let endY = (targetRect.top + targetRect.height / 2 + window.scrollY) * -1;
 
 		// Create keyframes
-		let endXOffset = startX < endX ? -50 : 50; // Determine direction based on startX and endX
+		let endXOffset = startX < endX ? -Math.random() * 100 : Math.random() * 100; // Determine direction based on startX and endX
 
 		let keyframes = [
 			{
@@ -56,11 +56,11 @@
 			},
 			{
 				transform: `translate(${(startX + endX) / 2}px, ${(startY + endY) / 2 - 25}px)`, // Midway point, subtract less from Y to create a lower arc
-				offset: 0.3 // Adjust this value
+				offset: 0.3
 			},
 			{
 				transform: `translate(${endX}px, ${endY}px)`,
-				offset: 0.6 // Adjust this value
+				offset: 0.6
 			},
 			{
 				transform: `translate(${endX + endXOffset}px, ${endY + 100}px)`,
