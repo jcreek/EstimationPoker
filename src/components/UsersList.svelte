@@ -1,10 +1,16 @@
 <script lang="ts">
+	import EmojiPicker from './EmojiPicker.svelte';
+
 	export let users: any;
 	export let showEstimates: boolean = false;
 	export let userId: string;
 
-	let customEmoji = '💩';
+	let customEmoji = '🧽'; // default emoji
 	let shieldActive = false;
+
+	const handleEmojiSelected = (event) => {
+        customEmoji = event.detail.emoji;
+    };
 
 	function handleCardClick(cardId) {
 		// Get the user from the cardId
@@ -92,6 +98,8 @@
 	}
 </script>
 
+<EmojiPicker on:emojiSelected="{handleEmojiSelected}" />
+
 <div id="users-list">
 	<div class="users-container">
 		{#each users as user (user.userId)}
@@ -113,8 +121,6 @@
 		{/each}
 	</div>
 </div>
-
-<!-- <input type="text" bind:value={customEmoji} placeholder="Enter your custom emoji" /> -->
 
 <style>
 	#users-list {

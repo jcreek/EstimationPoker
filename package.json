@@ -27,6 +27,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@joeattardi/emoji-button": "^4.6.4",
 		"uuid": "^9.0.0",
 		"ws": "^8.13.0"
 	}
