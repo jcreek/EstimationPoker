@@ -142,13 +142,20 @@
 	onMount(() => {
 		socket = connectToWebSocket(data.roomId, onMessageReceived);
 	});
+
+	async function copyToClipboard() {
+		try {
+			await navigator.clipboard.writeText(window.location.href);
+			alert('Room link copied to clipboard!');
+		} catch (err) {
+			console.error('Failed to copy: ', err);
+		}
+	}
 </script>
 
 {#if showModal}
 	<Modal {closeModal} {joinRoom} />
 {/if}
-
-
 
 <UsersList bind:this={usersList} {users} {showEstimates} {userId} {handleEmojiTrigger} />
 
@@ -169,6 +176,10 @@
 	{/if}
 </div>
 
+<button id="copy-link-btn" class="button button-white" on:click={copyToClipboard}
+	>Share Room Link</button
+>
+
 <Estimates onEstimateClick={handleEstimateClick} />
 
 {#if Object.keys(estimateGroups).length > 0}
@@ -182,7 +193,7 @@
 		justify-content: center;
 		margin-bottom: 1em;
 	}
-	
+
 	.button {
 		appearance: none;
 		border: 1px solid rgba(27, 31, 35, 0.15);
@@ -229,5 +240,20 @@
 
 	.button-red:hover {
 		background-color: #a2021f;
+	}
+
+	.button-white {
+		background-color: #ffffff;
+		color: black;
+	}
+
+    .button-white:hover {
+		background-color: #E6E6E6;
+	}
+
+	#copy-link-btn {
+		position: fixed;
+		top: 10px;
+		right: 10px;
 	}
 </style>
