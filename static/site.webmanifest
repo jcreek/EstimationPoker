@@ -3,8 +3,17 @@
 	"short_name": "Estimation Poker",
 	"description": "A cool estimation poker app",
 	"icons": [
-		{ "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
-		{ "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+		{
+			"src": "/android-chrome-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/android-chrome-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
 	],
 	"start_url": "/",
 	"theme_color": "#8D6A9F",
