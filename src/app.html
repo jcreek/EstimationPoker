@@ -48,6 +48,14 @@
 			window.addEventListener('appinstalled', (evt) => {
 				console.log('a2hs', 'appinstalled', evt);
 			});
+
+			if (window.matchMedia('(display-mode: standalone)').matches) {
+				installButton.style.display = 'none';
+			}
+
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('%sveltekit.assets%/service-worker.js');
+			});
 		</script>
 	</body>
 </html>
