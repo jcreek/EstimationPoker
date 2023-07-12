@@ -2,7 +2,7 @@
 	<div class="topbar-items"><h1><a href="/">Estimation Poker</a></h1></div>
 	<p id="install-app-btn-container" class="topbar-items">
 		<button id="install-offline-app" class="button button-black">
-			<span>Install the app (you can even use it offline!)</span>
+			<span>Install the app</span>
 		</button>
 	</p>
 </header>
@@ -118,7 +118,7 @@
 		color: #81796c;
 	}
 
-	/* .button {
+	.button {
 		appearance: none;
 		border: 1px solid rgba(27, 31, 35, 0.15);
 		border-radius: 6px;
@@ -158,7 +158,7 @@
 		outline: none;
 	}
 
-	.button-green {
+	/* .button-green {
 		background-color: #2ea44f;
 	}
 
@@ -178,7 +178,7 @@
 	.button-green:active {
 		background-color: #298e46;
 		box-shadow: rgba(20, 70, 32, 0.2) 0 1px 0 inset;
-	}
+	} */
 
 	.button-black {
 		background-color: #423e37;
@@ -188,7 +188,7 @@
 		background-color: #2e2b26;
 	}
 
-	.button-blue {
+	/* .button-blue {
 		background-color: #388697;
 	}
 

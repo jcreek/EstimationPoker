@@ -3,14 +3,51 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon-32x32.png" />
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap" rel="stylesheet">
+		<link rel="manifest" href="/site.webmanifest" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap"
+			rel="stylesheet"
+		/>
 		<meta name="viewport" content="width=device-width" />
 		<title>Estimation Poker</title>
 		%sveltekit.head%
 	</head>
-	<body data-sveltekit-preload-data="hover" style="margin: 0; font-family: Arial, sans-serif;">
+	<body data-sveltekit-preload-data="hover" style="margin: 0; font-family: Arial, sans-serif">
 		<div style="display: contents">%sveltekit.body%</div>
+
+		<script>
+			let deferredPrompt;
+			const installButton = document.getElementById('install-app-btn-container');
+
+			window.addEventListener('beforeinstallprompt', (e) => {
+				// Prevent the mini-infobar from appearing on mobile
+				e.preventDefault();
+				// Stash the event so it can be triggered later.
+				deferredPrompt = e;
+				// Update UI notify the user they can install the PWA
+				installButton.style.display = 'block';
+			});
+
+			installButton.addEventListener('click', async (e) => {
+				// Hide our user interface that shows our A2HS button
+				installButton.style.display = 'none';
+				// Show the prompt
+				deferredPrompt.prompt();
+				// Wait for the user to respond to the prompt
+				const { outcome } = await deferredPrompt.userChoice;
+				if (outcome === 'accepted') {
+					console.log('User accepted the A2HS prompt');
+				} else {
+					console.log('User dismissed the A2HS prompt');
+				}
+				deferredPrompt = null;
+			});
+
+			window.addEventListener('appinstalled', (evt) => {
+				console.log('a2hs', 'appinstalled', evt);
+			});
+		</script>
 	</body>
 </html>
