@@ -6,11 +6,6 @@ There are two components to this:
 1. Frontend, built using SvelteKit
 2. WebSockets server, built using Node.js
 
-## Potential Enhancements
-
-- throw emoji at people
-- add a shield to anyone named 'Tristan' whenever the poop emoji is thrown at them
-
 ## Frontend
 
 For full functionality, ensure there is a copy of the WebSockets server running. 

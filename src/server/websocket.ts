@@ -110,7 +110,11 @@ wss.on('connection', (ws: WebSocket, req) => {
 					if (allEstimates.size === room.getUsers().length) {
 						const users = room.getUsers();
 						const average = calculateAverageEstimate(users);
-						broadcastToRoom(room.id, { type: 'estimation-closed', average, groupedEstimates: groupEstimates(users)});
+						broadcastToRoom(room.id, {
+							type: 'estimation-closed',
+							average,
+							groupedEstimates: groupEstimates(users)
+						});
 					}
 				}
 			}
@@ -123,6 +127,15 @@ wss.on('connection', (ws: WebSocket, req) => {
 			if (room) {
 				const users = room.getUsers();
 				broadcastToRoom(room.id, { type: 'user-estimates', users });
+			}
+		} else if (data.type === 'trigger-emoji') {
+			const { cardId, emoji } = data;
+			if (room) {
+				broadcastToRoom(room.id, {
+					type: 'trigger-emoji',
+					cardId,
+					emoji
+				});
 			}
 		}
 	});

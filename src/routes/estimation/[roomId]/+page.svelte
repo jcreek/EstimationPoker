@@ -2,6 +2,8 @@
 	/** @type {import('./$types').PageData} */
 	export let data;
 
+	let usersList;
+
 	import { onMount } from 'svelte';
 	import UsersList from '../../../components/UsersList.svelte';
 	import EstimateGroupsList from '../../../components/EstimateGroupsList.svelte';
@@ -10,7 +12,7 @@
 	import Estimates from '../../../components/Estimates.svelte';
 
 	import { connectToWebSocket, sendMessage, generateId } from '../estimation.js';
-	
+
 	class JoinRoomMessage {
 		type: string;
 		roomId: string;
@@ -86,6 +88,14 @@
 		sendMessage(socket, new SelectEstimateMessage(data.roomId, userId, estimate));
 	}
 
+	function handleEmojiTrigger(cardId: string, emoji: string) {
+		sendMessage(socket, {
+			type: 'trigger-emoji',
+			cardId,
+			emoji
+		});
+	}
+
 	function restartEstimation() {
 		sendMessage(socket, { roomId: data.roomId, type: 'restart-estimation' });
 	}
@@ -122,6 +132,10 @@
 			showRestartButton = false;
 			showEstimates = false;
 			sendMessage(socket, { type: 'get-user-estimates' });
+		} else if (message.type === 'trigger-emoji') {
+			if (usersList && typeof usersList.triggerEmoji === 'function') {
+				usersList.triggerEmoji(message.cardId, message.emoji);
+			}
 		}
 	}
 
@@ -130,28 +144,30 @@
 	});
 </script>
 
-<h1>Estimation Page</h1>
-
 {#if showModal}
 	<Modal {closeModal} {joinRoom} />
 {/if}
 
-{#if showRestartButton}
-	<button
-		class="button button-red"
-		on:click={() => restartEstimation()}
-		on:keydown={(event) => {
-			if (event.key === 'Enter' || event.key === ' ') {
-				event.preventDefault();
-				restartEstimation();
-			}
-		}}
-		aria-label={'restart estimation'}
-		tabindex="0">Restart estimation</button
-	>
-{/if}
 
-<UsersList {users} {showEstimates} {userId} />
+
+<UsersList bind:this={usersList} {users} {showEstimates} {userId} {handleEmojiTrigger} />
+
+<div class="button-container">
+	{#if showRestartButton}
+		<button
+			class="button button-red"
+			on:click={() => restartEstimation()}
+			on:keydown={(event) => {
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault();
+					restartEstimation();
+				}
+			}}
+			aria-label={'restart estimation'}
+			tabindex="0">Restart estimation</button
+		>
+	{/if}
+</div>
 
 <Estimates onEstimateClick={handleEstimateClick} />
 
@@ -161,6 +177,12 @@
 {/if}
 
 <style>
+	.button-container {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 1em;
+	}
+	
 	.button {
 		appearance: none;
 		border: 1px solid rgba(27, 31, 35, 0.15);

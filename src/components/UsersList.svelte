@@ -4,6 +4,7 @@
 	export let users: any;
 	export let showEstimates: boolean = false;
 	export let userId: string;
+	export let handleEmojiTrigger: (cardId: string, emoji: string) => void;
 
 	let customEmoji = '🧽'; // default emoji
 	let shieldActive = false;
@@ -13,11 +14,15 @@
 	};
 
 	function handleCardClick(cardId) {
+		handleEmojiTrigger(cardId, customEmoji);
+	}
+
+	export function triggerEmoji(cardId, emoji) {
 		// Get the user from the cardId
 		let user = users.find((user) => `user-card-${user.userId}` === cardId);
 
 		// If the user is Tristan and the selected emoji is poop, activate the shield
-		if (user && user.name === 'Tristan' && customEmoji === '💩') {
+		if (user && user.name === 'Tristan' && emoji === '💩') {
 			shieldActive = true;
 
 			// After 2 seconds, remove the shield
@@ -31,7 +36,7 @@
 		let times = Math.floor(Math.random() * 3) + 3; // Random number between 3 and 5
 		for (let i = 0; i < times; i++) {
 			let timeout = Math.random() * 100 + 100 * i; // Random number between 100 and 200, multiplied by i to stagger the emojis
-			setTimeout(() => addEmojiToElement(cardId, customEmoji), timeout);
+			setTimeout(() => addEmojiToElement(cardId, emoji), timeout);
 		}
 	}
 
