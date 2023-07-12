@@ -137,6 +137,10 @@ wss.on('connection', (ws: WebSocket, req) => {
 					emoji
 				});
 			}
+		} else if (data.type === 'ping') {
+			if (room) {
+				broadcastToRoom(room.id, 'pong');
+			}
 		}
 	});
 

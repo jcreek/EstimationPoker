@@ -101,8 +101,6 @@
 	}
 
 	function onMessageReceived(message) {
-		console.log(message);
-
 		if (message.type === 'user-joined') {
 			sendMessage(socket, { type: 'get-user-estimates' });
 		} else if (message.type === 'user-estimates') {
@@ -141,6 +139,12 @@
 
 	onMount(() => {
 		socket = connectToWebSocket(data.roomId, onMessageReceived);
+
+		setInterval(() => {
+			if (socket.readyState === WebSocket.OPEN) {
+				socket.send(JSON.stringify({ type: 'ping' }));
+			}
+		}, 45000); // send a ping every 45 seconds
 	});
 
 	async function copyToClipboard() {
@@ -247,8 +251,8 @@
 		color: black;
 	}
 
-    .button-white:hover {
-		background-color: #E6E6E6;
+	.button-white:hover {
+		background-color: #e6e6e6;
 	}
 
 	#copy-link-btn {
