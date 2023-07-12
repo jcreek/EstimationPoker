@@ -19,12 +19,30 @@
 <div class="modal-overlay">
 	<div class="modal">
 		<h2>Enter Your Name</h2>
-		<input type="text" placeholder="Your Name" bind:value={userName} on:input={handleNameChange} />
+		<p>Try clicking on someone's card...</p>
+		<input
+			type="text"
+			placeholder="Your name"
+			bind:value={userName}
+			on:input={handleNameChange}
+			on:keydown={(event) => {
+				if (event.key === 'Enter') {
+					event.preventDefault();
+					handleSubmit();
+				}
+			}}
+		/>
 		<button on:click={handleSubmit}>Save</button>
 	</div>
 </div>
 
 <style>
+	p {
+		font-size: 12px;
+		font-style: italic;
+		color: gray;
+	}
+
 	/* Styles for the modal overlay */
 	.modal-overlay {
 		position: fixed;
