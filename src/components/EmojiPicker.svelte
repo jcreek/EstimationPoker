@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	let selectedEmoji = '🧻';
+	let selectedEmoji = '🧽';
 	let picker, button;
 
 	const showEmojiPicker = () => {
