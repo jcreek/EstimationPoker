@@ -61,6 +61,7 @@
 	let estimateGroups: { [key: number]: string[] } = {};
 	let showRestartButton = false;
 	let showEstimates = false;
+	let disableEstimates: boolean = false;
 
 	function closeModal() {
 		showModal = false;
@@ -125,10 +126,12 @@
 			estimateGroups = message.groupedEstimates;
 			showRestartButton = true;
 			showEstimates = true;
+			disableEstimates = true;
 		} else if (message.type === 'estimation-restarted') {
 			estimateGroups = {};
 			showRestartButton = false;
 			showEstimates = false;
+			disableEstimates = false;
 			sendMessage(socket, { type: 'get-user-estimates' });
 		} else if (message.type === 'trigger-emoji') {
 			if (usersList && typeof usersList.triggerEmoji === 'function') {
@@ -184,7 +187,7 @@
 	>Share Room Link</button
 >
 
-<Estimates onEstimateClick={handleEstimateClick} />
+<Estimates {disableEstimates} onEstimateClick={handleEstimateClick} />
 
 {#if Object.keys(estimateGroups).length > 0}
 	<EstimateGroupsList {estimateGroups} />

@@ -1,13 +1,15 @@
 <script lang="ts">
 	export let values: number[] = [1, 2, 3, 5, 8, 13, 21];
 	export let onEstimateClick: (value: number) => void;
+	export let disableEstimates: boolean = false;
 </script>
 
 <div id="estimates-list">
 	<div class="centered-container">
 		{#each values as value}
 			<button
-				class="estimate-card"
+				disabled={disableEstimates}
+				class="{disableEstimates ? 'estimate-card disabled' : 'estimate-card'}"
 				on:click={() => onEstimateClick(value)}
 				on:keydown={(event) => {
 					if (event.key === 'Enter' || event.key === ' ') {
@@ -39,6 +41,10 @@
 		color: #fff;
 		text-align: center;
 		cursor: pointer;
+	}
+
+	.disabled {
+		background-color: grey;
 	}
 
 	.value {
