@@ -7,7 +7,6 @@
 	import { onMount } from 'svelte';
 	import UsersList from '../../../components/UsersList.svelte';
 	import EstimateGroupsList from '../../../components/EstimateGroupsList.svelte';
-	import AverageEstimate from '../../../components/AverageEstimate.svelte';
 	import Modal from '../../../components/Modal.svelte';
 	import Estimates from '../../../components/Estimates.svelte';
 
@@ -31,9 +30,9 @@
 		type: string;
 		roomId: string;
 		userId: string;
-		estimate: number;
+		estimate: number | string;
 
-		constructor(roomId: string, userId: string, estimate: number) {
+		constructor(roomId: string, userId: string, estimate: number | string) {
 			this.type = 'select-estimate';
 			this.roomId = roomId;
 			this.userId = userId;
@@ -57,7 +56,6 @@
 	let showModal = true;
 	const userId = generateId();
 	let users: Array<User> = [];
-	let average: number;
 	let estimateGroups: { [key: number]: string[] } = {};
 	let showRestartButton = false;
 	let showEstimates = false;
@@ -85,7 +83,7 @@
 		}
 	}
 
-	function handleEstimateClick(estimate: number) {
+	function handleEstimateClick(estimate: number | string) {
 		sendMessage(socket, new SelectEstimateMessage(data.roomId, userId, estimate));
 	}
 
@@ -122,7 +120,6 @@
 		} else if (message.type === 'user-left') {
 			users = users.filter((user) => user.userId !== message.userId);
 		} else if (message.type === 'estimation-closed') {
-			average = message.average;
 			estimateGroups = message.groupedEstimates;
 			showRestartButton = true;
 			showEstimates = true;
@@ -191,7 +188,6 @@
 
 {#if Object.keys(estimateGroups).length > 0}
 	<EstimateGroupsList {estimateGroups} />
-	<AverageEstimate {average} />
 {/if}
 
 <style>

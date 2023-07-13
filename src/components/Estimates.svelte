@@ -1,6 +1,6 @@
 <script lang="ts">
-	export let values: number[] = [1, 2, 3, 5, 8, 13, 21];
-	export let onEstimateClick: (value: number) => void;
+	export let values: Array<number | string> = [1, 2, 3, 5, 8, 13, 21, '?'];
+	export let onEstimateClick: (value: number | string) => void;
 	export let disableEstimates: boolean = false;
 </script>
 

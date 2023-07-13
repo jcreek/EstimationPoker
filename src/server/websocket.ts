@@ -17,18 +17,8 @@ function onSocketPostError(e: Error) {
 	console.log(e);
 }
 
-function calculateAverageEstimate(users: Array<User>) {
-	let total = 0;
-	users.forEach((user) => {
-		if (user.estimate !== null) {
-			total += user.estimate;
-		}
-	});
-	return total / users.length;
-}
-
 function groupEstimates(users: Array<User>) {
-	let estimateGroups: { [key: number]: string[] } = {};
+	let estimateGroups: { [key: number | string]: string[] } = {};
 	users.forEach((user) => {
 		if (user.estimate !== null) {
 			if (estimateGroups[user.estimate]) {
@@ -109,10 +99,8 @@ wss.on('connection', (ws: WebSocket, req) => {
 					const allEstimates = room.getAllEstimates();
 					if (allEstimates.size === room.getUsers().length) {
 						const users = room.getUsers();
-						const average = calculateAverageEstimate(users);
 						broadcastToRoom(room.id, {
 							type: 'estimation-closed',
-							average,
 							groupedEstimates: groupEstimates(users)
 						});
 					}
