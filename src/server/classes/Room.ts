@@ -35,7 +35,7 @@ export class Room {
 	}
 
 	getAllEstimates() {
-		const estimates = new Map<string, number>();
+		const estimates = new Map<string, number | string>();
 		this.users.forEach((user) => {
 			if (user.estimate !== null) {
 				estimates.set(user.name, user.estimate);
