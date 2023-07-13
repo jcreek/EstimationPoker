@@ -60,6 +60,7 @@
 	let showRestartButton = false;
 	let showEstimates = false;
 	let disableEstimates: boolean = false;
+	let audioElement;
 
 	function closeModal() {
 		showModal = false;
@@ -134,6 +135,8 @@
 			if (usersList && typeof usersList.triggerEmoji === 'function') {
 				usersList.triggerEmoji(message.cardId, message.emoji);
 			}
+		} else if (message.type === 'nudge') {
+			audioElement.play();
 		}
 	}
 
@@ -189,6 +192,8 @@
 {#if Object.keys(estimateGroups).length > 0}
 	<EstimateGroupsList {estimateGroups} />
 {/if}
+
+<audio src="/call-to-attention.mp3" bind:this={audioElement}></audio>
 
 <style>
 	.button-container {

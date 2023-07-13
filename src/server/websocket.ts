@@ -96,13 +96,43 @@ wss.on('connection', (ws: WebSocket, req) => {
 						estimate
 					});
 
+					const users = room.getUsers();
+					let timeout = undefined;
+
 					const allEstimates = room.getAllEstimates();
-					if (allEstimates.size === room.getUsers().length) {
-						const users = room.getUsers();
+					if (allEstimates.size === users.length) {
+						// If all users have estimated, clear the timeout
+						clearTimeout(timeout);
+						timeout = undefined;
+
 						broadcastToRoom(room.id, {
 							type: 'estimation-closed',
 							groupedEstimates: groupEstimates(users)
 						});
+					} else if (allEstimates.size === users.length - 1) {
+						// The last user has 30 seconds to add their estimation, otherwise send the nudge message
+						let notEstimatedUser: User | undefined = undefined;
+						for (let i = 0; i < users.length; i++) {
+							if (!allEstimates.has(users[i].name)) {
+								notEstimatedUser = users[i];
+								break;
+							}
+						}
+						if (notEstimatedUser !== undefined) {
+							const ws = room.getWebSocketByUser(notEstimatedUser);
+							if (ws) {
+								// Cancel the old timeout if it's still running
+								if (timeout) {
+									clearTimeout(timeout);
+								}
+								// Set a new timeout
+								timeout = setTimeout(() => {
+									if (!room!.getAllEstimates().has(notEstimatedUser!.name)) {
+										ws.send(JSON.stringify({ type: 'nudge' }));
+									}
+								}, 30000);
+							}
+						}
 					}
 				}
 			}
