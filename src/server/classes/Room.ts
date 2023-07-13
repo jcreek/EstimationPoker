@@ -26,6 +26,15 @@ export class Room {
 		return this.users.get(ws);
 	}
 
+	getWebSocketByUser(user: User): WebSocket | null {
+		for (const [ws, u] of this.users) {
+			if (u === user) {
+				return ws;
+			}
+		}
+		return null;
+	}
+
 	broadcast(message: any) {
 		this.users.forEach((user, client) => {
 			if (client.readyState === WebSocket.OPEN) {
