@@ -49,3 +49,7 @@ Once you've installed dependencies with `npm install`, start a development serve
 ```bash
 npm run dev
 ```
+
+### Deploying
+
+See the README in `src/server` for details.
