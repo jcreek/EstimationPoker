@@ -25,6 +25,7 @@ function connectToWebSocket(roomId, onMessageReceived) {
 
 	socket.addEventListener('close', () => {
 		console.log('Disconnected from WebSocket server');
+		alert('You have been disconnected from the server. Please refresh the page to reconnect.');
 	});
 
 	return socket;
