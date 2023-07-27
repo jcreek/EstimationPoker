@@ -193,7 +193,7 @@
 	<EstimateGroupsList {estimateGroups} />
 {/if}
 
-<audio src="/call-to-attention.mp3" bind:this={audioElement}></audio>
+<audio src="/call-to-attention-50-percent-volume.mp3" bind:this={audioElement}></audio>
 
 <style>
 	.button-container {
