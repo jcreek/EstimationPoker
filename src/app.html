@@ -4,9 +4,12 @@
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon-32x32.png" />
 		<link rel="manifest" href="/site.webmanifest" />
-		<meta name="theme-color" content="#8D6A9F">
-		<meta name="description" content="A web app designed to assist scrum teams in performing estimations quickly and with minimal effort.">
-		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png">
+		<meta name="theme-color" content="#8D6A9F" />
+		<meta
+			name="description"
+			content="A web app designed to assist scrum teams in performing estimations quickly and with minimal effort."
+		/>
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/apple-touch-icon.png" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -57,7 +60,19 @@
 			}
 
 			window.addEventListener('load', () => {
-				navigator.serviceWorker.register('%sveltekit.assets%/service-worker.js');
+				if ('serviceWorker' in navigator) {
+					navigator.serviceWorker.register('%sveltekit.assets%/service-worker.js').then(
+						function (registration) {
+							console.log(
+								'ServiceWorker registration successful with scope: ',
+								registration.scope
+							);
+						},
+						function (err) {
+							console.log('ServiceWorker registration failed: ', err);
+						}
+					);
+				}
 			});
 		</script>
 	</body>
