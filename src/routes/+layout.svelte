@@ -1,3 +1,23 @@
+<script>
+	let theme = 'light';
+
+	if (typeof localStorage !== 'undefined') {
+		theme = localStorage.getItem('theme');
+	}
+
+	function toggleTheme() {
+		const html = document.querySelector('body');
+		theme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+		html.setAttribute('data-theme', theme);
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem('theme', theme);
+		}
+	}
+</script>
+
+<button id="themeToggleButton" on:click={toggleTheme}>
+	<emoji>{theme === 'light' ? '🌙' : '☀️'}</emoji>
+</button>
 <header class="topbar-container">
 	<div class="topbar-items"><h1><a href="/">Estimation Poker</a></h1></div>
 	<p id="install-app-btn-container" class="topbar-items">
@@ -19,6 +39,21 @@
 </footer>
 
 <style>
+	#themeToggleButton {
+		position: fixed;
+		top: 7px;
+		left: 7px;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		padding: 0;
+		border: none;
+		outline: none;
+	}
+
 	#main-container {
 		margin: 0 auto;
 		max-width: 100%; /* Allow the element to grow wider than its parent */
@@ -98,9 +133,7 @@
 		bottom: 0;
 		width: 100%;
 		text-align: center;
-		color: #423e37;
 		padding-bottom: 10px;
-		background-color: white;
 	}
 
 	.footer-container hr {
@@ -108,14 +141,6 @@
 		border-top: 0.5px solid #423e37;
 		margin-left: auto;
 		margin-right: auto;
-	}
-
-	.footer-container a {
-		color: #423e37;
-	}
-
-	.footer-container a:hover {
-		color: #81796c;
 	}
 
 	.button {

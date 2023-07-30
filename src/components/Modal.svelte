@@ -141,4 +141,8 @@
 	h2 {
 		margin-bottom: 0px;
 	}
+
+	.modal {
+		color: #333;
+	}
 </style>
