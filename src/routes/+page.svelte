@@ -2,9 +2,19 @@
 	import { generateId } from './estimation/estimation.js';
 	import { goto } from '$app/navigation';
 
+	let roomId = '';
+
 	function startARoom() {
 		const roomId = generateId();
 		goto(`/estimation/${roomId}`);
+	}
+
+	function joinRoom() {
+		const match = roomId.match(/\/estimation\/(.+)/);
+		if (match) {
+			const roomId = match[1];
+			goto(`/estimation/${roomId}`);
+		}
 	}
 </script>
 
@@ -13,6 +23,11 @@
 		Simply start a room and share the URL to everyone else who needs to join the estimation session.
 	</p>
 	<button class="button button-green" on:click={startARoom}>Start a room</button>
+	<div class="join-room-container">
+		<label for="room-id">Join a room:</label>
+		<input type="text" id="room-id" placeholder="Paste a shared room link" bind:value={roomId} />
+		<button class="button button-yellow" on:click={joinRoom}>Join</button>
+	</div>
 </div>
 
 <style>
@@ -27,6 +42,28 @@
 	.container button {
 		display: block;
 		margin: 0 auto;
+	}
+
+	.join-room-container {
+		margin-top: 50px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.join-room-container label {
+		font-size: 1rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.join-room-container input[type='text'] {
+		font-size: 1.2rem;
+		padding: 0.5rem;
+		border-radius: 0.25rem;
+		border: 1px solid #ccc;
+		margin-bottom: 0.5rem;
+		width: 100%;
+		max-width: 20rem;
 	}
 
 	.button {
@@ -110,5 +147,13 @@
 	.button-white {
 		background-color: #ffffff;
 		color: black;
+	}
+
+	.button-yellow {
+		background-color: #eea236;
+	}
+
+	.button-yellow:hover {
+		background-color: #d18f2e;
 	}
 </style>
