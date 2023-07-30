@@ -1,32 +1,35 @@
 <script>
 	export let closeModal;
 	export let joinRoom;
-
+  
 	let userName = '';
 	let rememberName = false;
-
+  
 	function handleNameChange(event) {
-		userName = event.target.value;
+	  userName = event.target.value;
 	}
-
+  
 	function handleSubmit() {
-		if (userName.trim() !== '') {
-			joinRoom(userName);
-			if (rememberName && typeof localStorage !== 'undefined') {
-				localStorage.setItem('userName', userName);
-			} else if (typeof localStorage !== 'undefined') {
-				localStorage.removeItem('userName');
-			}
-			closeModal();
+	  if (userName.trim() !== '') {
+		joinRoom(userName);
+		if (rememberName && typeof localStorage !== 'undefined') {
+		  localStorage.setItem('userName', userName);
+		  localStorage.setItem('rememberName', true);
+		} else if (typeof localStorage !== 'undefined') {
+		  localStorage.removeItem('userName');
+		  localStorage.removeItem('rememberName');
 		}
+		closeModal();
+	  }
 	}
-
+  
 	function handleRememberChange(event) {
-		rememberName = event.target.checked;
+	  rememberName = event.target.checked;
 	}
-
+  
 	$: userName = typeof localStorage !== 'undefined' ? localStorage.getItem('userName') || '' : '';
-</script>
+	$: rememberName = typeof localStorage !== 'undefined' ? localStorage.getItem('rememberName') === 'true' : false;
+  </script>
 
 <div class="modal-container">
 	<div class="modal-overlay">
