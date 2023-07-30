@@ -1,28 +1,31 @@
 <script lang="ts">
-	export let values: Array<number | string> = [1, 2, 3, 5, 8, 13, 21, '?'];
+	export let values: Array<number | string>;
 	export let onEstimateClick: (value: number | string) => void;
 	export let disableEstimates: boolean = false;
 </script>
 
 <div id="estimates-list">
 	<div class="centered-container">
-		{#each values as value}
-			<button
-				disabled={disableEstimates}
-				class="{disableEstimates ? 'estimate-card disabled' : 'estimate-card'}"
-				on:click={() => onEstimateClick(value)}
-				on:keydown={(event) => {
-					if (event.key === 'Enter' || event.key === ' ') {
-						event.preventDefault();
-						onEstimateClick(value);
-					}
-				}}
-				aria-label={`Estimate: ${value}`}
-				tabindex="0"
-			>
-				<p class="value">{value}</p>
-			</button>
-		{/each}
+		
+		{#if values !== undefined}
+			{#each values as value}
+				<button
+					disabled={disableEstimates}
+					class="{disableEstimates ? 'estimate-card disabled' : 'estimate-card'}"
+					on:click={() => onEstimateClick(value)}
+					on:keydown={(event) => {
+						if (event.key === 'Enter' || event.key === ' ') {
+							event.preventDefault();
+							onEstimateClick(value);
+						}
+					}}
+					aria-label={`Estimate: ${value}`}
+					tabindex="0"
+				>
+					<p class="value">{value}</p>
+				</button>
+			{/each}
+		{/if}
 	</div>
 </div>
 

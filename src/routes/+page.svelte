@@ -1,11 +1,26 @@
 <script>
-	import { generateId } from './estimation/estimation.js';
+	import { onMount } from 'svelte';
+	import { connectToWebSocket, sendMessage, generateId } from './estimation/estimation.js';
 	import { goto } from '$app/navigation';
 
 	let roomId = '';
+	let socket;
+	const cardSets = [
+		{ name: 'Fibonacci', values: [1, 2, 3, 5, 8, 13, 21, '?'], example: '(1, 2, 3, 5)' },
+		{
+			name: 'T-Shirt Sizing',
+			values: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '?'],
+			example: '(XS, S, M, L)'
+		},
+		{ name: 'Powers of 2', values: [1, 2, 4, 8, 16, 32, '?'], example: '(1, 2, 4, 8)' },
+		{ name: 'Sequential', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, '?'], example: '(1, 2, 3, 4)' }
+	];
+
+	let selectedCardSet = cardSets[0];
 
 	function startARoom() {
 		const roomId = generateId();
+		sendMessage(socket, { roomId: roomId, type: 'create-room', cardSetName: selectedCardSet.name });
 		goto(`/estimation/${roomId}`);
 	}
 
@@ -16,12 +31,32 @@
 			goto(`/estimation/${roomId}`);
 		}
 	}
+	function onMessageReceived(message) {
+		
+	}
+
+	onMount(() => {
+		socket = connectToWebSocket(null, onMessageReceived);
+
+		setInterval(() => {
+			if (socket.readyState === WebSocket.OPEN) {
+				socket.send(JSON.stringify({ type: 'ping' }));
+			}
+		}, 45000); // send a ping every 45 seconds
+	});
 </script>
 
 <div class="container">
 	<p>
 		Simply start a room and share the URL to everyone else who needs to join the estimation session.
 	</p>
+	<div class="dropdown">
+		<select on:change={(e) => (selectedCardSet = cardSets[e.target.selectedIndex])}>
+			{#each cardSets as cardSet, i}
+				<option value={i}>{cardSet.name} {cardSet.example}</option>
+			{/each}
+		</select>
+	</div>
 	<button class="button button-green" on:click={startARoom}>Start a room</button>
 	<div class="join-room-container">
 		<label for="room-id">Join a room:</label>
