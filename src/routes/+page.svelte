@@ -31,9 +31,8 @@
 			goto(`/estimation/${roomId}`);
 		}
 	}
-	function onMessageReceived(message) {
-		
-	}
+
+	function onMessageReceived(message) {}
 
 	onMount(() => {
 		socket = connectToWebSocket(null, onMessageReceived);
@@ -48,7 +47,8 @@
 
 <div class="container">
 	<p>
-		Simply start a room and share the URL to everyone else who needs to join the estimation session.
+		Simply choose a card set, start a room and share the URL to everyone else who needs to join the
+		estimation session.
 	</p>
 	<div class="dropdown">
 		<select on:change={(e) => (selectedCardSet = cardSets[e.target.selectedIndex])}>
@@ -99,6 +99,38 @@
 		margin-bottom: 0.5rem;
 		width: 100%;
 		max-width: 20rem;
+	}
+
+	.dropdown {
+		display: inline-block;
+		margin-bottom: 10px;
+	}
+
+	.dropdown select {
+		appearance: none;
+		background-color: #fff;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		box-shadow: none;
+		color: #333;
+		font-size: 14px;
+		height: 34px;
+		padding: 6px 12px;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+		background-position: right 8px center;
+		background-repeat: no-repeat;
+		background-size: 16px 16px;
+		padding-right: 24px;
+	}
+
+	.dropdown select:focus {
+		border-color: #66afe9;
+		box-shadow: none;
+		outline: none;
+	}
+
+	.dropdown select::-ms-expand {
+		display: none;
 	}
 
 	.button {
