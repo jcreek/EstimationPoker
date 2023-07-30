@@ -60,18 +60,6 @@
 		padding: 0 20px; /* Add some horizontal spacing */
 	}
 
-	@media (max-width: 767px) {
-		#main-container {
-			width: 100%; /* Fill the full width of the viewport */
-		}
-	}
-
-	@media (min-width: 768px) {
-		#main-container {
-			width: 80%; /* Adjust the width as per your preference */
-		}
-	}
-
 	.topbar-container {
 		display: flex;
 		flex-direction: row;
