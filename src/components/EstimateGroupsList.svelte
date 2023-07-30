@@ -70,4 +70,8 @@
 		display: inline;
 		margin-right: 5px;
 	}
+
+	#estimate-groups-list {
+		color: #333;
+	}
 </style>
