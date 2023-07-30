@@ -56,11 +56,12 @@
 	let showModal = true;
 	const userId = generateId();
 	let users: Array<User> = [];
-	let estimateGroups: { [key: number]: string[] } = {};
+	let estimateGroups: { [key: number | string]: string[] } = {};
 	let showRestartButton = false;
 	let showEstimates = false;
 	let disableEstimates: boolean = false;
 	let audioElement;
+	let selectedCardSet;
 
 	function closeModal() {
 		showModal = false;
@@ -104,6 +105,8 @@
 		if (message.type === 'user-joined') {
 			sendMessage(socket, { type: 'get-user-estimates' });
 		} else if (message.type === 'user-estimates') {
+			selectedCardSet = message.selectedCardSet.values;
+
 			message.users.forEach((user) => {
 				let updatedUser = users.find((u) => u.userId === user.userId);
 				if (updatedUser === undefined) {
@@ -187,7 +190,7 @@
 	>Share Room Link</button
 >
 
-<Estimates {disableEstimates} onEstimateClick={handleEstimateClick} />
+<Estimates values={selectedCardSet} {disableEstimates} onEstimateClick={handleEstimateClick} />
 
 {#if Object.keys(estimateGroups).length > 0}
 	<EstimateGroupsList {estimateGroups} />

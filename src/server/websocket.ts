@@ -1,6 +1,6 @@
 import express from 'express';
 import { WebSocketServer, WebSocket } from 'ws';
-import { Room } from './classes/Room.js';
+import { Room, cardSets } from './classes/Room.js';
 import { User } from './classes/User.js';
 import { JoinRoomMessage } from './classes/messages/JoinRoomMessage.js';
 import { ChangeEstimateMessage } from './classes/messages/ChangeEstimateMessage.js';
@@ -62,23 +62,31 @@ wss.on('connection', (ws: WebSocket, req) => {
 
 	ws.on('error', onSocketPostError);
 
+	function createRoom(roomId: string, cardSetName: string) {
+		room = new Room(roomId, cardSetName);
+		rooms.add(room);
+	}
+
 	ws.on('message', (message) => {
 		const data = JSON.parse(message.toString());
 
-		if (data.type === 'join-room') {
+		if (data.type === 'create-room') {
+			const roomId = data.roomId;
+			const cardSetName = data.cardSetName;
+			createRoom(roomId, cardSetName);
+		} else if (data.type === 'join-room') {
 			const joinRoomMessage: JoinRoomMessage = data as JoinRoomMessage;
 			const { roomId, userId, name } = joinRoomMessage;
 			room = getRoomById(roomId);
 
 			// Create room if it doesn't already exist
 			if (!room) {
-				room = new Room(roomId);
-				rooms.add(room);
+				createRoom(roomId, data.cardSetName);
 			}
 
 			// Create the user in the room
 			const user = new User(userId, name);
-			room.addUser(ws, user);
+			room!.addUser(ws, user);
 
 			broadcastToRoom(roomId, { type: 'user-joined', message: `${name} has joined the room` });
 		} else if (data.type === 'select-estimate') {
@@ -144,7 +152,7 @@ wss.on('connection', (ws: WebSocket, req) => {
 		} else if (data.type === 'get-user-estimates') {
 			if (room) {
 				const users = room.getUsers();
-				broadcastToRoom(room.id, { type: 'user-estimates', users });
+				broadcastToRoom(room.id, { type: 'user-estimates', users, selectedCardSet: room.cardSet });
 			}
 		} else if (data.type === 'trigger-emoji') {
 			const { cardId, emoji } = data;

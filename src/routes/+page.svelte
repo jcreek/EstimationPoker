@@ -1,11 +1,26 @@
 <script>
-	import { generateId } from './estimation/estimation.js';
+	import { onMount } from 'svelte';
+	import { connectToWebSocket, sendMessage, generateId } from './estimation/estimation.js';
 	import { goto } from '$app/navigation';
 
 	let roomId = '';
+	let socket;
+	const cardSets = [
+		{ name: 'Fibonacci', values: [1, 2, 3, 5, 8, 13, 21, '?'], example: '(1, 2, 3, 5)' },
+		{
+			name: 'T-Shirt Sizing',
+			values: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '?'],
+			example: '(XS, S, M, L)'
+		},
+		{ name: 'Powers of 2', values: [1, 2, 4, 8, 16, 32, '?'], example: '(1, 2, 4, 8)' },
+		{ name: 'Sequential', values: [1, 2, 3, 4, 5, 6, 7, 8, 9, '?'], example: '(1, 2, 3, 4)' }
+	];
+
+	let selectedCardSet = cardSets[0];
 
 	function startARoom() {
 		const roomId = generateId();
+		sendMessage(socket, { roomId: roomId, type: 'create-room', cardSetName: selectedCardSet.name });
 		goto(`/estimation/${roomId}`);
 	}
 
@@ -16,12 +31,32 @@
 			goto(`/estimation/${roomId}`);
 		}
 	}
+
+	function onMessageReceived(message) {}
+
+	onMount(() => {
+		socket = connectToWebSocket(null, onMessageReceived);
+
+		setInterval(() => {
+			if (socket.readyState === WebSocket.OPEN) {
+				socket.send(JSON.stringify({ type: 'ping' }));
+			}
+		}, 45000); // send a ping every 45 seconds
+	});
 </script>
 
 <div class="container">
 	<p>
-		Simply start a room and share the URL to everyone else who needs to join the estimation session.
+		Simply choose a card set, start a room and share the URL to everyone else who needs to join the
+		estimation session.
 	</p>
+	<div class="dropdown">
+		<select on:change={(e) => (selectedCardSet = cardSets[e.target.selectedIndex])}>
+			{#each cardSets as cardSet, i}
+				<option value={i}>{cardSet.name} {cardSet.example}</option>
+			{/each}
+		</select>
+	</div>
 	<button class="button button-green" on:click={startARoom}>Start a room</button>
 	<div class="join-room-container">
 		<label for="room-id">Join a room:</label>
@@ -64,6 +99,38 @@
 		margin-bottom: 0.5rem;
 		width: 100%;
 		max-width: 20rem;
+	}
+
+	.dropdown {
+		display: inline-block;
+		margin-bottom: 10px;
+	}
+
+	.dropdown select {
+		appearance: none;
+		background-color: #fff;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		box-shadow: none;
+		color: #333;
+		font-size: 14px;
+		height: 34px;
+		padding: 6px 12px;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+		background-position: right 8px center;
+		background-repeat: no-repeat;
+		background-size: 16px 16px;
+		padding-right: 24px;
+	}
+
+	.dropdown select:focus {
+		border-color: #66afe9;
+		box-shadow: none;
+		outline: none;
+	}
+
+	.dropdown select::-ms-expand {
+		display: none;
 	}
 
 	.button {
