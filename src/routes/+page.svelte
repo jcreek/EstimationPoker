@@ -47,8 +47,7 @@
 
 <div class="container">
 	<p>
-		Simply choose a card set, start a room and share the URL to everyone else who needs to join the
-		estimation session.
+		Estimation Poker is totally free planning poker tool to use with your scrum team! Simply choose a card set, start a room and share the URL to everyone else who needs to join the estimation session.
 	</p>
 	<div class="dropdown">
 		<select on:change={(e) => (selectedCardSet = cardSets[e.target.selectedIndex])}>
