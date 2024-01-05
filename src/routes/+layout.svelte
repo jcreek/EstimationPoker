@@ -13,6 +13,8 @@
 			localStorage.setItem('theme', theme);
 		}
 	}
+
+	const currentYear = new Date().getFullYear();
 </script>
 
 <button id="themeToggleButton" on:click={toggleTheme}>
@@ -33,7 +35,7 @@
 
 <footer class="footer-container">
 	<hr />
-	<span class="footer-items">Copyright &copy; 2023 Josh Creek</span>
+	<span class="footer-items">Copyright &copy; {currentYear} Josh Creek</span>
 	<span> | </span>
 	<span class="footer-items"><a href="/privacy-policy.html">Privacy Policy</a></span>
 </footer>
