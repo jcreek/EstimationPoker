@@ -97,6 +97,14 @@
 		});
 	}
 
+	function handleKickUser(userId: string) {
+		console.log('sending kick-user message');
+		sendMessage(socket, {
+			type: 'kick-user',
+			userId
+		});
+	}
+
 	function restartEstimation() {
 		sendMessage(socket, { roomId: data.roomId, type: 'restart-estimation' });
 	}
@@ -167,7 +175,7 @@
 	<Modal {closeModal} {joinRoom} />
 {/if}
 
-<UsersList bind:this={usersList} {users} {showEstimates} {userId} {handleEmojiTrigger} />
+<UsersList bind:this={usersList} {users} {showEstimates} {userId} {handleEmojiTrigger} {handleKickUser} />
 
 <div class="button-container">
 	{#if showRestartButton}
