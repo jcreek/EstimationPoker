@@ -167,6 +167,17 @@ wss.on('connection', (ws: WebSocket, req) => {
 			if (room) {
 				broadcastToRoom(room.id, 'pong');
 			}
+		} else if (data.type === 'kick-user') {
+			console.log('kick user message received');
+			if (room) {
+				const userIdToKick = data.userId;
+				const ws = room.getWebSocketByUserId(userIdToKick);
+				console.log(userIdToKick, ws);
+				if (ws) {
+					console.log('closing ws');
+					ws.close();
+				}
+			}
 		}
 	});
 

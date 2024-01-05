@@ -5,6 +5,7 @@
 	export let showEstimates: boolean = false;
 	export let userId: string;
 	export let handleEmojiTrigger: (cardId: string, emoji: string) => void;
+	export let handleKickUser: (userId: string) => void;
 
 	let customEmoji = '🧽'; // default emoji
 	let shieldActive = false;
@@ -101,9 +102,35 @@
 			document.body.removeChild(emojiElement);
 		}, 2000);
 	}
+
+	let selectedUserId = '';
+
+	export function kickUser() {
+		if (selectedUserId) {
+			let confirmed = confirm('Are you sure you want to kick this user?');
+
+			if (confirmed) {
+				console.log('confirmed');
+				handleKickUser(selectedUserId);
+			}
+		}
+	}
 </script>
 
-<EmojiPicker on:emojiSelected={handleEmojiSelected} />
+<div id="top-container">
+	<EmojiPicker on:emojiSelected={handleEmojiSelected} />
+
+	<div id="user-kicker">
+		<select bind:value={selectedUserId}>
+			<option value="">Select a user</option>
+			{#each users as user (user.userId)}
+				<option value={user.userId}>{user.name}</option>
+			{/each}
+		</select>
+
+		<button class="emoji-button button button-red" on:click={kickUser}>Kick User</button>
+	</div>
+</div>
 
 <div id="users-list">
 	<div class="users-container">
@@ -128,6 +155,19 @@
 </div>
 
 <style>
+	#top-container {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	select {
+		font-size: 0.8rem;
+		padding: 0.5rem;
+		border-radius: 0.25rem;
+		border: 1px solid gray;
+		margin-bottom: 0.5rem;
+	}
+
 	#users-list {
 		display: flex;
 		flex-wrap: wrap;
@@ -238,5 +278,53 @@
 		100% {
 			box-shadow: 0 0 10px 5px rgba(0, 0, 255, 0.5);
 		}
+	}
+
+	.button {
+		appearance: none;
+		border: 1px solid rgba(27, 31, 35, 0.15);
+		border-radius: 6px;
+		box-shadow: rgba(27, 31, 35, 0.1) 0 1px 0;
+		box-sizing: border-box;
+		color: #fff;
+		cursor: pointer;
+		display: inline-block;
+		font-family: -apple-system, system-ui, 'Segoe UI', Helvetica, Arial, sans-serif,
+			'Apple Color Emoji', 'Segoe UI Emoji';
+		font-size: 14px;
+		font-weight: 600;
+		line-height: 20px;
+		padding: 6px 16px;
+		position: relative;
+		text-align: center;
+		text-decoration: none;
+		user-select: none;
+		-webkit-user-select: none;
+		touch-action: manipulation;
+		vertical-align: middle;
+		white-space: nowrap;
+	}
+
+	.button:focus:not(:focus-visible):not(.focus-visible) {
+		box-shadow: none;
+		outline: none;
+	}
+
+	.button:disabled {
+		border-color: rgba(27, 31, 35, 0.1);
+		color: rgba(255, 255, 255, 0.8);
+		cursor: default;
+	}
+
+	.button:focus {
+		outline: none;
+	}
+
+    .button-red {
+		background-color: #b60223;
+	}
+
+	.button-red:hover {
+		background-color: #a2021f;
 	}
 </style>
