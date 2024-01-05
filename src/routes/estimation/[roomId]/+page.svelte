@@ -1,4 +1,31 @@
 <script lang="ts">
+	const changesLog = [
+		{ timestamp: '2024-01-05T00:00:00', message: 'Added the ability to kick a user' },
+		{ timestamp: '2024-01-05T00:00:00', message: 'Added update notes' },
+	];
+
+	let newChanges = [];
+
+	function checkForNewChanges() {
+		// Check if we're in a browser environment
+		if (typeof window !== 'undefined') {
+			// Get the user's last visit timestamp from localStorage
+			let lastVisitTimestamp = localStorage.getItem('lastVisitTimestamp');
+
+			// If lastVisitTimestamp is null or undefined, set it to 0
+			lastVisitTimestamp = lastVisitTimestamp ? lastVisitTimestamp : '0';
+
+			// Filter changes made after the user's last visit
+			newChanges = changesLog.filter((change) => change.timestamp > lastVisitTimestamp);
+
+			// Update the user's last visit timestamp to the current time
+			localStorage.setItem('lastVisitTimestamp', new Date().toISOString());
+		}
+	}
+
+	// Call the function when the page loads
+	checkForNewChanges();
+
 	/** @type {import('./$types').PageData} */
 	export let data;
 
@@ -54,6 +81,7 @@
 
 	let socket;
 	let showModal = true;
+	let showTooltip = false;
 	const userId = generateId();
 	let users: Array<User> = [];
 	let estimateGroups: { [key: number | string]: string[] } = {};
@@ -65,6 +93,11 @@
 
 	function closeModal() {
 		showModal = false;
+		showTooltip = true;
+	}
+
+	function toggleTooltip() {
+		showTooltip = !showTooltip;
 	}
 
 	function joinRoom(name: string) {
@@ -175,7 +208,14 @@
 	<Modal {closeModal} {joinRoom} />
 {/if}
 
-<UsersList bind:this={usersList} {users} {showEstimates} {userId} {handleEmojiTrigger} {handleKickUser} />
+<UsersList
+	bind:this={usersList}
+	{users}
+	{showEstimates}
+	{userId}
+	{handleEmojiTrigger}
+	{handleKickUser}
+/>
 
 <div class="button-container">
 	{#if showRestartButton}
@@ -204,7 +244,19 @@
 	<EstimateGroupsList {estimateGroups} />
 {/if}
 
-<audio src="/call-to-attention-50-percent-volume.mp3" bind:this={audioElement}></audio>
+<audio src="/call-to-attention-50-percent-volume.mp3" bind:this={audioElement} />
+
+{#if showTooltip && newChanges.length > 0}
+	<div id="tooltip-container" on:click={toggleTooltip}>
+		<h3>Latest Updates</h3>
+		<ul>
+			{#each newChanges as change (change.timestamp)}
+                <li>{new Date(change.timestamp).toLocaleDateString()}: {change.message}</li>
+            {/each}
+		</ul>
+		
+	</div>
+{/if}
 
 <style>
 	.button-container {
@@ -275,4 +327,29 @@
 		top: 10px;
 		right: 10px;
 	}
+
+	#tooltip-container {
+		position: fixed;
+		bottom: 50px;
+		right: 30px;
+		padding: 10px 20px;
+		background-color: #8d6a9f;
+		color: #fff;
+		border-radius: 5px;
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+	}
+
+	#tooltip-container h3 {
+		margin-top: 5px;
+	}
+
+	#tooltip-container ul {
+        list-style-position: inside;
+        padding-left: 0;
+		margin-bottom: 0;
+    }
+
+	#tooltip-container ul li {
+        text-indent: -10px;
+    }
 </style>
