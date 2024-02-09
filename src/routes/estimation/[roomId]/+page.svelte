@@ -1,7 +1,7 @@
 <script lang="ts">
 	const changesLog = [
 		{ timestamp: '2024-01-05T00:00:00', message: 'Added the ability to kick a user' },
-		{ timestamp: '2024-01-05T00:00:00', message: 'Added update notes' },
+		{ timestamp: '2024-01-05T00:00:00', message: 'Added update notes' }
 	];
 
 	let newChanges = [];
@@ -36,6 +36,7 @@
 	import EstimateGroupsList from '../../../components/EstimateGroupsList.svelte';
 	import Modal from '../../../components/Modal.svelte';
 	import Estimates from '../../../components/Estimates.svelte';
+	import FireworkShow from '../../../components/FireworkShow.svelte';
 
 	import { connectToWebSocket, sendMessage, generateId } from '../estimation.js';
 
@@ -89,7 +90,9 @@
 	let showEstimates = false;
 	let disableEstimates: boolean = false;
 	let audioElement;
+	let fireworks;
 	let selectedCardSet;
+	let showFireworks = false;
 
 	function closeModal() {
 		showModal = false;
@@ -142,6 +145,16 @@
 		sendMessage(socket, { roomId: data.roomId, type: 'restart-estimation' });
 	}
 
+	function areEstimatesSame(estimateGroups: { [key: number | string]: string[] }): boolean {
+		const estimates = Object.keys(estimateGroups);
+		const users = Object.values(estimateGroups);
+		const allUsers = users.flat();
+
+		if (allUsers.length > 2 && estimates.length === 1) {
+			return true;
+		}
+	}
+
 	function onMessageReceived(message) {
 		if (message.type === 'user-joined') {
 			sendMessage(socket, { type: 'get-user-estimates' });
@@ -166,10 +179,17 @@
 			users = users.filter((user) => user.userId !== message.userId);
 		} else if (message.type === 'estimation-closed') {
 			estimateGroups = message.groupedEstimates;
+			showFireworks = areEstimatesSame(estimateGroups);
+			if (showFireworks) {
+				fireworks.play();
+			}
 			showRestartButton = true;
 			showEstimates = true;
 			disableEstimates = true;
 		} else if (message.type === 'estimation-restarted') {
+			showFireworks = false;
+			fireworks.pause();
+			fireworks.currentTime = 0;
 			estimateGroups = {};
 			showRestartButton = false;
 			showEstimates = false;
@@ -244,17 +264,21 @@
 	<EstimateGroupsList {estimateGroups} />
 {/if}
 
+{#if showFireworks}
+	<FireworkShow />
+{/if}
+
 <audio src="/call-to-attention-50-percent-volume.mp3" bind:this={audioElement} />
+<audio src="/fireworks.mp3" bind:this={fireworks} />
 
 {#if showTooltip && newChanges.length > 0}
 	<div id="tooltip-container" on:click={toggleTooltip}>
 		<h3>Latest Updates</h3>
 		<ul>
 			{#each newChanges as change (change.timestamp)}
-                <li>{new Date(change.timestamp).toLocaleDateString()}: {change.message}</li>
-            {/each}
+				<li>{new Date(change.timestamp).toLocaleDateString()}: {change.message}</li>
+			{/each}
 		</ul>
-		
 	</div>
 {/if}
 
@@ -344,12 +368,12 @@
 	}
 
 	#tooltip-container ul {
-        list-style-position: inside;
-        padding-left: 0;
+		list-style-position: inside;
+		padding-left: 0;
 		margin-bottom: 0;
-    }
+	}
 
 	#tooltip-container ul li {
-        text-indent: -10px;
-    }
+		text-indent: -10px;
+	}
 </style>
