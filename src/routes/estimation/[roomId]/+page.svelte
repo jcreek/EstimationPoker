@@ -36,7 +36,7 @@
 	import EstimateGroupsList from '../../../components/EstimateGroupsList.svelte';
 	import Modal from '../../../components/Modal.svelte';
 	import Estimates from '../../../components/Estimates.svelte';
-	import FireworkShow from '../../../components/FireworkShow.svelte';
+	import Fireworks, { type FireworksOptions } from '@fireworks-js/svelte';
 
 	import { connectToWebSocket, sendMessage, generateId } from '../estimation.js';
 
@@ -90,9 +90,24 @@
 	let showEstimates = false;
 	let disableEstimates: boolean = false;
 	let audioElement;
-	let fireworks;
-	let selectedCardSet;
 	let showFireworks = false;
+	let fireworks: Fireworks
+  let fireworkOptions: FireworksOptions = {
+    opacity: 0.5,
+		sound: {
+			enabled: true,
+			files: [
+        '/sounds/explosion0.mp3',
+        '/sounds/explosion1.mp3',
+        '/sounds/explosion2.mp3'
+      ],
+      volume: {
+        min: 4,
+        max: 8
+      }
+		}
+  }
+	let selectedCardSet;
 
 	function closeModal() {
 		showModal = false;
@@ -180,16 +195,11 @@
 		} else if (message.type === 'estimation-closed') {
 			estimateGroups = message.groupedEstimates;
 			showFireworks = areEstimatesSame(estimateGroups);
-			if (showFireworks) {
-				fireworks.play();
-			}
 			showRestartButton = true;
 			showEstimates = true;
 			disableEstimates = true;
 		} else if (message.type === 'estimation-restarted') {
 			showFireworks = false;
-			fireworks.pause();
-			fireworks.currentTime = 0;
 			estimateGroups = {};
 			showRestartButton = false;
 			showEstimates = false;
@@ -265,11 +275,12 @@
 {/if}
 
 {#if showFireworks}
-	<FireworkShow />
+	<div class="launch-pad">
+		<Fireworks bind:this={fireworks} options={fireworkOptions} />
+	</div>
 {/if}
 
 <audio src="/call-to-attention-50-percent-volume.mp3" bind:this={audioElement} />
-<audio src="/fireworks.mp3" bind:this={fireworks} />
 
 {#if showTooltip && newChanges.length > 0}
 	<div id="tooltip-container" on:click={toggleTooltip}>
@@ -375,5 +386,14 @@
 
 	#tooltip-container ul li {
 		text-indent: -10px;
+	}
+
+	.launch-pad {
+    position: fixed;
+    top: 0;
+    z-index: -1;
+    pointer-events: none;
+    left: 0;
+    right: 0;
 	}
 </style>
