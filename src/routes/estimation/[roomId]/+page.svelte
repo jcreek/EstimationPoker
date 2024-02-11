@@ -276,7 +276,7 @@
 {/if}
 
 {#if showFireworks}
-	<div class="launch-pad">
+	<div class="fireworks-container">
 		<Fireworks bind:this={fireworks} options={fireworkOptions} />
 	</div>
 {/if}
@@ -389,7 +389,7 @@
 		text-indent: -10px;
 	}
 
-	.launch-pad {
+	.fireworks-container {
 		position: fixed;
 		top: 0;
 		z-index: -1;
