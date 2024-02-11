@@ -102,8 +102,8 @@
         '/sounds/explosion2.mp3'
       ],
       volume: {
-        min: 4,
-        max: 8
+        min: 1,
+        max: 2
       }
 		}
   }
@@ -195,6 +195,11 @@
 		} else if (message.type === 'estimation-closed') {
 			estimateGroups = message.groupedEstimates;
 			showFireworks = areEstimatesSame(estimateGroups);
+			if (showFireworks) {
+				setTimeout(() => {
+					showFireworks = false;
+				}, 5000);
+			}
 			showRestartButton = true;
 			showEstimates = true;
 			disableEstimates = true;
