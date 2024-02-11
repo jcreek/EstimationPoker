@@ -91,22 +91,18 @@
 	let disableEstimates: boolean = false;
 	let audioElement;
 	let showFireworks = false;
-	let fireworks: Fireworks
-  let fireworkOptions: FireworksOptions = {
-    opacity: 0.5,
+	let fireworks: Fireworks;
+	let fireworkOptions: FireworksOptions = {
+		opacity: 0.5,
 		sound: {
 			enabled: true,
-			files: [
-        '/sounds/explosion0.mp3',
-        '/sounds/explosion1.mp3',
-        '/sounds/explosion2.mp3'
-      ],
-      volume: {
-        min: 1,
-        max: 2
-      }
+			files: ['/sounds/explosion0.mp3', '/sounds/explosion1.mp3', '/sounds/explosion2.mp3'],
+			volume: {
+				min: 1,
+				max: 2
+			}
 		}
-  }
+	};
 	let selectedCardSet;
 
 	function closeModal() {
@@ -394,11 +390,11 @@
 	}
 
 	.launch-pad {
-    position: fixed;
-    top: 0;
-    z-index: -1;
-    pointer-events: none;
-    left: 0;
-    right: 0;
+		position: fixed;
+		top: 0;
+		z-index: -1;
+		pointer-events: none;
+		left: 0;
+		right: 0;
 	}
 </style>
