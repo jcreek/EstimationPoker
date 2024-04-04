@@ -1,6 +1,13 @@
 <script lang="ts">
 	const changesLog = [
-		{ timestamp: '2024-02-11T19:00:00', message: 'Added celebration when all users have the same estimate (cred: O. Nicholass)' },
+		{
+			timestamp: '2024-02-11T19:00:00',
+			message: 'Added fix to ensure that kicking a user always works'
+		},
+		{
+			timestamp: '2024-02-11T19:00:00',
+			message: 'Added celebration when all users have the same estimate (cred: O. Nicholass)'
+		},
 		{ timestamp: '2024-01-05T00:00:00', message: 'Added the ability to kick a user' },
 		{ timestamp: '2024-01-05T00:00:00', message: 'Added update notes' }
 	];
@@ -13,8 +20,8 @@
 			// Get the user's last visit timestamp from localStorage
 			let lastVisitTimestamp = localStorage.getItem('lastVisitTimestamp');
 
-			// If lastVisitTimestamp is null or undefined, set it to 0
-			lastVisitTimestamp = lastVisitTimestamp ? lastVisitTimestamp : '0';
+			// If lastVisitTimestamp is null or undefined, set it to today's date
+			lastVisitTimestamp = lastVisitTimestamp ? lastVisitTimestamp : new Date().toISOString();
 
 			// Filter changes made after the user's last visit
 			newChanges = changesLog.filter((change) => change.timestamp > lastVisitTimestamp);
