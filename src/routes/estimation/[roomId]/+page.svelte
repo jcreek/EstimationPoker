@@ -20,8 +20,8 @@
 			// Get the user's last visit timestamp from localStorage
 			let lastVisitTimestamp = localStorage.getItem('lastVisitTimestamp');
 
-			// If lastVisitTimestamp is null or undefined, set it to 0
-			lastVisitTimestamp = lastVisitTimestamp ? lastVisitTimestamp : '0';
+			// If lastVisitTimestamp is null or undefined, set it to today's date
+			lastVisitTimestamp = lastVisitTimestamp ? lastVisitTimestamp : new Date().toISOString();
 
 			// Filter changes made after the user's last visit
 			newChanges = changesLog.filter((change) => change.timestamp > lastVisitTimestamp);
