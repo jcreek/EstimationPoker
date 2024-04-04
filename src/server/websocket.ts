@@ -171,12 +171,16 @@ wss.on('connection', (ws: WebSocket, req) => {
 			console.log('kick user message received');
 			if (room) {
 				const userIdToKick = data.userId;
+
 				const ws = room.getWebSocketByUserId(userIdToKick);
 				console.log(userIdToKick, ws);
 				if (ws) {
 					console.log('closing ws');
 					ws.close();
 				}
+
+				// Remove them from the room even if the active websocket can't be found or can't be closed
+				room.removeUser(userIdToKick);
 			}
 		}
 	});
