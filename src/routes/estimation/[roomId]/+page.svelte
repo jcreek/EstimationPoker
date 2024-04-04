@@ -1,7 +1,7 @@
 <script lang="ts">
 	const changesLog = [
 		{
-			timestamp: '2024-02-11T19:00:00',
+			timestamp: '2024-04-04T12:35:00',
 			message: 'Added fix to ensure that kicking a user always works'
 		},
 		{
