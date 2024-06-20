@@ -10,10 +10,15 @@
 	}
 </script>
 
-<div class="modal-container" on:click={handleOverlayClick} on:keydown={handleOverlayKeydown}>
-	<div id="modal-overlay" aria-modal="true">
+<div class="modal-container">
+	<div
+		id="modal-overlay"
+		on:click={handleOverlayClick}
+		on:keydown={handleOverlayKeydown}
+		aria-modal="true"
+	>
 		<div class="modal">
-			<h2>{heading}e</h2>
+			<h2>{heading}</h2>
 			<p>{body}</p>
 		</div>
 	</div>
