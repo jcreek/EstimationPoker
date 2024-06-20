@@ -3,21 +3,19 @@
 	export let heading = '';
 	export let body = '';
 
-	function handleOverlayClick(event) {
+	function handleSubmit() {
 		showModal = false;
 	}
 </script>
 
 <div class="modal-container">
-	<div
-		id="modal-overlay"
-		on:click={handleOverlayClick}
-		on:keydown={handleOverlayKeydown}
-		aria-modal="true"
-	>
+	<div id="modal-overlay">
 		<div class="modal">
 			<h2>{heading}</h2>
 			<p>{body}</p>
+			<div class="button-container">
+				<button on:click={handleSubmit}>OK</button>
+			</div>
 		</div>
 	</div>
 </div>
