@@ -1,79 +1,30 @@
 <script>
-	export let closeModal;
-	export let joinRoom;
-  
-	let userName = '';
-	let rememberName = false;
-  
-	function handleNameChange(event) {
-	  userName = event.target.value;
-	}
-  
-	function handleSubmit() {
-	  if (userName.trim() !== '') {
-		joinRoom(userName);
-		if (rememberName && typeof localStorage !== 'undefined') {
-		  localStorage.setItem('userName', userName);
-		  localStorage.setItem('rememberName', true);
-		} else if (typeof localStorage !== 'undefined') {
-		  localStorage.removeItem('userName');
-		  localStorage.removeItem('rememberName');
+	export let showModal = false;
+	export let heading = '';
+	export let body = '';
+
+	function handleOverlayClick(event) {
+		if (event.target.id === 'modal-overlay') {
+			showModal = false;
 		}
-		closeModal();
-	  }
 	}
-  
-	function handleRememberChange(event) {
-	  rememberName = event.target.checked;
-	}
-  
-	$: userName = typeof localStorage !== 'undefined' ? localStorage.getItem('userName') || '' : '';
-	$: rememberName = typeof localStorage !== 'undefined' ? localStorage.getItem('rememberName') === 'true' : false;
-  </script>
+</script>
 
 <div class="modal-container">
-	<div class="modal-overlay">
+	<div
+		id="modal-overlay"
+		on:click={handleOverlayClick}
+		on:keydown={handleOverlayKeydown}
+		aria-modal="true"
+	>
 		<div class="modal">
-			<h2>Enter Your Name</h2>
-			<p>Try clicking on someone's card...</p>
-			<div class="input-container">
-				<input
-					type="text"
-					placeholder="Your name"
-					bind:value={userName}
-					on:input={handleNameChange}
-					on:keydown={(event) => {
-						if (event.key === 'Enter') {
-							event.preventDefault();
-							handleSubmit();
-						}
-					}}
-				/>
-				<label class="rememberme">
-					<input type="checkbox" bind:checked={rememberName} on:change={handleRememberChange} />
-					Remember my name
-				</label>
-			</div>
-			<div class="button-container">
-				<button on:click={handleSubmit}>Save</button>
-			</div>
-			<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812114745839139"
-				crossorigin="anonymous"></script>
-			<!-- Name Entry - Square Ad -->
-			<ins class="adsbygoogle"
-				style="display:block"
-				data-ad-client="ca-pub-5812114745839139"
-				data-ad-slot="5531796845"
-				data-ad-format="auto"
-				data-full-width-responsive="true"></ins>
-			<script>
-				(adsbygoogle = window.adsbygoogle || []).push({});
-			</script>
+			<h2>{heading}</h2>
+			<p>{body}</p>
 		</div>
 	</div>
 </div>
 
-<style>
+<style scoped>
 	.modal-container {
 		display: flex;
 		justify-content: center;
@@ -81,7 +32,7 @@
 		height: 100%;
 	}
 
-	.modal-overlay {
+	#modal-overlay {
 		position: fixed;
 		top: 0;
 		left: 0;
