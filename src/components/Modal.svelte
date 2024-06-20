@@ -4,9 +4,7 @@
 	export let body = '';
 
 	function handleOverlayClick(event) {
-		if (event.target.id === 'modal-overlay') {
-			showModal = false;
-		}
+		showModal = false;
 	}
 </script>
 
