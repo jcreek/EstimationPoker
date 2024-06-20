@@ -1,6 +1,11 @@
 <script lang="ts">
 	const changesLog = [
 		{
+			timestamp: '2024-06-20T19:36:00',
+			message:
+				'Added message to prompt users to discuss the topic further if estimates are widely varied'
+		},
+		{
 			timestamp: '2024-04-04T12:35:00',
 			message: 'Added fix to ensure that kicking a user always works'
 		},
@@ -43,6 +48,7 @@
 	import UsersList from '../../../components/UsersList.svelte';
 	import EstimateGroupsList from '../../../components/EstimateGroupsList.svelte';
 	import Modal from '../../../components/Modal.svelte';
+	import UserNameModal from '../../../components/UserNameModal.svelte';
 	import Estimates from '../../../components/Estimates.svelte';
 	import Fireworks, { type FireworksOptions } from '@fireworks-js/svelte';
 
@@ -99,6 +105,7 @@
 	let disableEstimates: boolean = false;
 	let audioElement;
 	let showFireworks = false;
+	let showLackOfUnderstandingMessage = false;
 	let fireworks: Fireworks;
 	let fireworkOptions: FireworksOptions = {
 		opacity: 0.5,
@@ -174,6 +181,14 @@
 		}
 	}
 
+	function areEstimatesWidelyVaried(estimateGroups: { [key: number | string]: string[] }): boolean {
+		const estimates = Object.keys(estimateGroups);
+
+		if (estimates.length >= 4) {
+			return true;
+		}
+	}
+
 	function onMessageReceived(message) {
 		if (message.type === 'user-joined') {
 			sendMessage(socket, { type: 'get-user-estimates' });
@@ -204,6 +219,7 @@
 					showFireworks = false;
 				}, 5000);
 			}
+			showLackOfUnderstandingMessage = areEstimatesWidelyVaried(estimateGroups);
 			showRestartButton = true;
 			showEstimates = true;
 			disableEstimates = true;
@@ -244,7 +260,7 @@
 </script>
 
 {#if showModal}
-	<Modal {closeModal} {joinRoom} />
+	<UserNameModal {closeModal} {joinRoom} />
 {/if}
 
 <UsersList
@@ -287,6 +303,14 @@
 	<div class="fireworks-container">
 		<Fireworks bind:this={fireworks} options={fireworkOptions} />
 	</div>
+{/if}
+
+{#if showLackOfUnderstandingMessage}
+	<Modal
+		bind:showModal={showLackOfUnderstandingMessage}
+		heading={'There seems to be a lack of understanding'}
+		body={'Please discuss the topic further and try estimating again.'}
+	/>
 {/if}
 
 <audio src="/call-to-attention-50-percent-volume.mp3" bind:this={audioElement} />
