@@ -1,15 +1,14 @@
-import express from 'express';
-import { WebSocketServer, WebSocket } from 'ws';
-import { Room, cardSets } from './classes/Room.js';
+import type * as Party from 'partykit/server';
+import { Room } from './classes/Room.js';
 import { User } from './classes/User.js';
 import { JoinRoomMessage } from './classes/messages/JoinRoomMessage.js';
 import { ChangeEstimateMessage } from './classes/messages/ChangeEstimateMessage.js';
 import { SelectEstimateMessage } from './classes/messages/SelectEstimateMessage.js';
 
-wss.on('connection', (ws: WebSocket, req) => {
-	let room: Room | null = null;
+export default class EstimationParty implements Party.Server {
+	room: Room | null = null;
 
-	ws.on('error', onSocketPostError);
+	constructor(public party: Party.Room) {}
 
 	function createRoom(roomId: string, cardSetName: string) {
 		room = new Room(roomId, cardSetName);
@@ -155,28 +154,4 @@ wss.on('connection', (ws: WebSocket, req) => {
 			}
 		}
 	});
-});
 
-function broadcastToRoom(roomId: string, message: any) {
-	const room = getRoomById(roomId);
-	if (room) {
-		room.broadcast(message);
-	}
-}
-
-function getUsersInRoom(roomId: string) {
-	const room = getRoomById(roomId);
-	if (room) {
-		return room.getUsers();
-	}
-	return [];
-}
-
-function getRoomById(roomId: string) {
-	for (const room of rooms) {
-		if (room.id === roomId) {
-			return room;
-		}
-	}
-	return null;
-}
