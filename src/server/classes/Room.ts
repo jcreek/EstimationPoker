@@ -1,5 +1,5 @@
-import { WebSocket } from 'ws';
-import { User } from './User';
+import type * as Party from 'partykit/server';
+import { User } from './User.js';
 
 class CardSet {
 	name: string;
@@ -27,7 +27,7 @@ export const cardSets: Array<CardSet> = [
 export class Room {
 	id: string;
 	cardSet: CardSet;
-	users: Map<WebSocket, User>;
+	users: Map<Party.Connection, User>;
 
 	constructor(id: string, cardSetName: string) {
 		this.id = id;
@@ -37,49 +37,48 @@ export class Room {
 		} else {
 			this.cardSet = cardSets[0];
 		}
-		
+
 		this.users = new Map();
 	}
 
-	addUser(ws: WebSocket, user: User) {
-		this.users.set(ws, user);
+	addUser(connection: Party.Connection, user: User) {
+		this.users.set(connection, user);
 	}
 
-	removeUser(ws: WebSocket) {
-		this.users.delete(ws);
+	removeUser(connection: Party.Connection) {
+		this.users.delete(connection);
 	}
 
 	getUsers() {
 		return Array.from(this.users.values());
 	}
 
-	getUserByWebSocket(ws: WebSocket) {
-		return this.users.get(ws);
+	getUserByConnection(connection: Party.Connection): User | undefined {
+		return this.users.get(connection);
 	}
 
-	getWebSocketByUser(user: User): WebSocket | null {
-		for (const [ws, u] of this.users) {
+	getConnectionByUser(user: User): Party.Connection | null {
+		for (const [connection, u] of this.users) {
 			if (u === user) {
-				return ws;
+				return connection;
 			}
 		}
 		return null;
 	}
 
-	getWebSocketByUserId(userId: String): WebSocket | null {
-		for (const [ws, u] of this.users) {
+	getConnectionByUserId(userId: string): Party.Connection | null {
+		for (const [connection, u] of this.users) {
 			if (u.userId === userId) {
-				return ws;
+				return connection;
 			}
 		}
 		return null;
 	}
 
 	broadcast(message: any) {
-		this.users.forEach((user, client) => {
-			if (client.readyState === WebSocket.OPEN) {
-				client.send(JSON.stringify(message));
-			}
+		const messageString = JSON.stringify(message);
+		this.users.forEach((user, connection) => {
+			connection.send(messageString);
 		});
 	}
 
