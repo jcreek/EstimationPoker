@@ -6,57 +6,6 @@ import { JoinRoomMessage } from './classes/messages/JoinRoomMessage.js';
 import { ChangeEstimateMessage } from './classes/messages/ChangeEstimateMessage.js';
 import { SelectEstimateMessage } from './classes/messages/SelectEstimateMessage.js';
 
-const app = express();
-const port = process.env.PORT || 8080;
-
-function onSocketPreError(e: Error) {
-	console.log(e);
-}
-
-function onSocketPostError(e: Error) {
-	console.log(e);
-}
-
-function groupEstimates(users: Array<User>) {
-	let estimateGroups: { [key: number | string]: string[] } = {};
-	users.forEach((user) => {
-		if (user.estimate !== null) {
-			if (estimateGroups[user.estimate]) {
-				estimateGroups[user.estimate].push(user.name);
-			} else {
-				estimateGroups[user.estimate] = [user.name];
-			}
-		}
-	});
-
-	return estimateGroups;
-}
-
-console.log(`Attempting to run server on port ${port}`);
-
-const server = app.listen(port, () => {
-	console.log(`Listening on port ${port}`);
-});
-
-const wss = new WebSocketServer({ noServer: true });
-const rooms = new Set<Room>();
-
-server.on('upgrade', (req, socket, head) => {
-	socket.on('error', onSocketPreError);
-
-	// perform auth
-	if (!!req.headers['BadAuth']) {
-		socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-		socket.destroy();
-		return;
-	}
-
-	wss.handleUpgrade(req, socket, head, (ws) => {
-		socket.removeListener('error', onSocketPreError);
-		wss.emit('connection', ws, req);
-	});
-});
-
 wss.on('connection', (ws: WebSocket, req) => {
 	let room: Room | null = null;
 
