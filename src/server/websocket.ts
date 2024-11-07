@@ -10,9 +10,23 @@ export default class EstimationParty implements Party.Server {
 
 	constructor(public party: Party.Room) {}
 
-	function createRoom(roomId: string, cardSetName: string) {
-		room = new Room(roomId, cardSetName);
-		rooms.add(room);
+	async onStart() {
+		const savedRoom = (await this.party.storage.get('room')) as Room;
+		this.room = savedRoom ? new Room(savedRoom.id, savedRoom.cardSet.name) : null;
+	}
+
+	async onConnect(connection: Party.Connection) {
+		if (this.room) {
+			const users = this.room.getUsers();
+			connection.send(
+				JSON.stringify({
+					type: 'sync',
+					roomId: this.room.id,
+					users,
+					cardSetName: this.room.cardSet.name
+				})
+			);
+		}
 	}
 
 	ws.on('message', (message) => {
@@ -154,4 +168,3 @@ export default class EstimationParty implements Party.Server {
 			}
 		}
 	});
-
