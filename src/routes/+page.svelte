@@ -1,10 +1,8 @@
 <script>
-	import { onMount } from 'svelte';
 	import { connectToWebSocket, sendMessage, generateId } from './estimation/estimation.js';
 	import { goto } from '$app/navigation';
 
 	let roomId = '';
-	let socket;
 	const cardSets = [
 		{ name: 'Fibonacci', values: [1, 2, 3, 5, 8, 13, 21, '?'], example: '(1, 2, 3, 5)' },
 		{
@@ -18,9 +16,39 @@
 
 	let selectedCardSet = cardSets[0];
 
-	function startARoom() {
+	function waitForSocketOpen(socket) {
+		if (socket.readyState === WebSocket.OPEN) {
+			return Promise.resolve();
+		}
+
+		return new Promise((resolve, reject) => {
+			const handleOpen = () => {
+				socket.removeEventListener('open', handleOpen);
+				socket.removeEventListener('error', handleError);
+				resolve();
+			};
+			const handleError = (event) => {
+				socket.removeEventListener('open', handleOpen);
+				socket.removeEventListener('error', handleError);
+				reject(event);
+			};
+
+			socket.addEventListener('open', handleOpen);
+			socket.addEventListener('error', handleError);
+		});
+	}
+
+	async function startARoom() {
 		const roomId = generateId();
-		sendMessage(socket, { roomId: roomId, type: 'create-room', cardSetName: selectedCardSet.name });
+		const socket = connectToWebSocket(roomId, onMessageReceived);
+		try {
+			await waitForSocketOpen(socket);
+			sendMessage(socket, { roomId: roomId, type: 'create-room', cardSetName: selectedCardSet.name });
+		} catch (error) {
+			console.error('Failed to connect to PartyKit:', error);
+			alert('Unable to create the room right now. Please try again.');
+			return;
+		}
 		goto(`/estimation/${roomId}`);
 	}
 
@@ -33,16 +61,6 @@
 	}
 
 	function onMessageReceived(message) {}
-
-	onMount(() => {
-		socket = connectToWebSocket(null, onMessageReceived);
-
-		setInterval(() => {
-			if (socket.readyState === WebSocket.OPEN) {
-				socket.send(JSON.stringify({ type: 'ping' }));
-			}
-		}, 45000); // send a ping every 45 seconds
-	});
 </script>
 
 <div class="container">

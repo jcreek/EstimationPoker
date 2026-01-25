@@ -1,0 +1,6 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "websocket-server-party",
+  "main": "websocket.ts",
+  "compatibilityDate": "2024-11-07"
+}

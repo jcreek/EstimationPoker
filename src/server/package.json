@@ -23,6 +23,10 @@
     "map-stream": "0.0.7",
     "tsc-watch": "^5.0.3",
     "typescript": "^4.6.3",
-    "ws": "^8.12.1"
+    "ws": "^8.12.1",
+    "partysocket": "1.0.2"
+  },
+  "devDependencies": {
+    "partykit": "0.0.111"
   }
 }
