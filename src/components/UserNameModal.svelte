@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	export let closeModal;
 	export let joinRoom;
@@ -29,11 +29,28 @@
 		rememberName = event.target.checked;
 	}
 
-	onMount(() => {
-		if (typeof window !== 'undefined' && window.adsbygoogle) {
-			window.adsbygoogle = window.adsbygoogle || [];
-			window.adsbygoogle.push({});
-		}
+	let adContainer;
+	let adPushed = false;
+
+	function tryPushAd() {
+		if (adPushed || !adContainer) return;
+		if (adContainer.offsetWidth === 0) return;
+		if (typeof window === 'undefined' || !window.adsbygoogle) return;
+		window.adsbygoogle = window.adsbygoogle || [];
+		window.adsbygoogle.push({});
+		adPushed = true;
+	}
+
+	onMount(async () => {
+		await tick();
+		tryPushAd();
+		if (adPushed || typeof ResizeObserver === 'undefined') return;
+		const observer = new ResizeObserver(() => {
+			tryPushAd();
+			if (adPushed) observer.disconnect();
+		});
+		observer.observe(adContainer);
+		return () => observer.disconnect();
 	});
 
 	$: userName = typeof localStorage !== 'undefined' ? localStorage.getItem('userName') || '' : '';
@@ -67,7 +84,9 @@
 				<button on:click={handleSubmit}>Save</button>
 			</div>
 			<!-- Name Entry - Square Ad -->
-			<ins class="adsbygoogle"
+			<ins
+				bind:this={adContainer}
+				class="adsbygoogle"
 				style="display:block"
 				data-ad-client="ca-pub-5812114745839139"
 				data-ad-slot="5531796845"
@@ -105,6 +124,7 @@
 		flex-direction: column;
 		align-items: center;
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+		width: min(90vw, 22rem);
 	}
 
 	.input-container {
@@ -145,6 +165,11 @@
 
 	button:hover {
 		background-color: #005f8a;
+	}
+
+	.adsbygoogle {
+		align-self: stretch;
+		width: 100%;
 	}
 
 	p {
