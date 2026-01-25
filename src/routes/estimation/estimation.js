@@ -1,23 +1,20 @@
 import { v4 as uuidv4 } from 'uuid';
 import PartySocket from 'partysocket';
-import { PUBLIC_PARTYKIT_HOST, PUBLIC_PARTYKIT_PARTY } from '$env/static/public';
+import { env } from '$env/dynamic/public';
 
 function generateId() {
 	const id = uuidv4();
 	return id;
 }
 
-const partyHost = PUBLIC_PARTYKIT_HOST?.trim();
-const partyName = PUBLIC_PARTYKIT_PARTY || 'main';
+const fallbackHost = import.meta.env.DEV
+	? 'localhost:1999'
+	: 'websocket-server-party.jcreek.partykit.dev';
+const partyHost = env.PUBLIC_PARTYKIT_HOST?.trim() || fallbackHost;
+const partyName = env.PUBLIC_PARTYKIT_PARTY || 'main';
 
 function getPartyKitHost() {
-	if (partyHost) {
-		return partyHost;
-	}
-	if (import.meta.env.DEV) {
-		return 'localhost:1999';
-	}
-	throw new Error('PUBLIC_PARTYKIT_HOST is not set for this build.');
+	return partyHost;
 }
 
 function connectToWebSocket(roomId, onMessageReceived) {
