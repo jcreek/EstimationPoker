@@ -1,13 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import PartySocket from 'partysocket';
+import { PUBLIC_PARTYKIT_HOST, PUBLIC_PARTYKIT_PARTY } from '$env/static/public';
 
 function generateId() {
 	const id = uuidv4();
 	return id;
 }
 
-const partyHost = import.meta.env.PUBLIC_PARTYKIT_HOST?.trim();
-const partyName = import.meta.env.PUBLIC_PARTYKIT_PARTY || 'main';
+const partyHost = PUBLIC_PARTYKIT_HOST?.trim();
+const partyName = PUBLIC_PARTYKIT_PARTY || 'main';
 
 function getPartyKitHost() {
 	if (partyHost) {
