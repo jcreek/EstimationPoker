@@ -1,35 +1,44 @@
 <script>
+	import { onMount } from 'svelte';
+
 	export let closeModal;
 	export let joinRoom;
-  
+
 	let userName = '';
 	let rememberName = false;
-  
+
 	function handleNameChange(event) {
-	  userName = event.target.value;
+		userName = event.target.value;
 	}
-  
+
 	function handleSubmit() {
-	  if (userName.trim() !== '') {
-		joinRoom(userName);
-		if (rememberName && typeof localStorage !== 'undefined') {
-		  localStorage.setItem('userName', userName);
-		  localStorage.setItem('rememberName', true);
-		} else if (typeof localStorage !== 'undefined') {
-		  localStorage.removeItem('userName');
-		  localStorage.removeItem('rememberName');
+		if (userName.trim() !== '') {
+			joinRoom(userName);
+			if (rememberName && typeof localStorage !== 'undefined') {
+				localStorage.setItem('userName', userName);
+				localStorage.setItem('rememberName', true);
+			} else if (typeof localStorage !== 'undefined') {
+				localStorage.removeItem('userName');
+				localStorage.removeItem('rememberName');
+			}
+			closeModal();
 		}
-		closeModal();
-	  }
 	}
-  
+
 	function handleRememberChange(event) {
-	  rememberName = event.target.checked;
+		rememberName = event.target.checked;
 	}
-  
+
+	onMount(() => {
+		if (typeof window !== 'undefined' && window.adsbygoogle) {
+			window.adsbygoogle = window.adsbygoogle || [];
+			window.adsbygoogle.push({});
+		}
+	});
+
 	$: userName = typeof localStorage !== 'undefined' ? localStorage.getItem('userName') || '' : '';
 	$: rememberName = typeof localStorage !== 'undefined' ? localStorage.getItem('rememberName') === 'true' : false;
-  </script>
+</script>
 
 <div class="modal-container">
 	<div class="modal-overlay">
@@ -57,8 +66,6 @@
 			<div class="button-container">
 				<button on:click={handleSubmit}>Save</button>
 			</div>
-			<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5812114745839139"
-				crossorigin="anonymous"></script>
 			<!-- Name Entry - Square Ad -->
 			<ins class="adsbygoogle"
 				style="display:block"
@@ -66,9 +73,6 @@
 				data-ad-slot="5531796845"
 				data-ad-format="auto"
 				data-full-width-responsive="true"></ins>
-			<script>
-				(adsbygoogle = window.adsbygoogle || []).push({});
-			</script>
 		</div>
 	</div>
 </div>
