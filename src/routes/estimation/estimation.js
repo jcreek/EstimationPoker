@@ -1,18 +1,29 @@
 import { v4 as uuidv4 } from 'uuid';
+import PartySocket from 'partysocket';
 
 function generateId() {
 	const id = uuidv4();
 	return id;
 }
 
-function connectToWebSocket(roomId, onMessageReceived) {
-	let socket;
-    const isDevelopment = import.meta.env.DEV;
-	if (isDevelopment) {
-		socket = new WebSocket(`ws://localhost:8080`);
-	} else {
-		socket = new WebSocket(`wss://websocket.jcreek.co.uk`);
+const partyHost = import.meta.env.PUBLIC_PARTYKIT_HOST;
+const partyName = import.meta.env.PUBLIC_PARTYKIT_PARTY || 'main';
+
+function getPartyKitHost() {
+	if (partyHost) {
+		return partyHost;
 	}
+	return import.meta.env.DEV ? 'localhost:1999' : 'websocket.jcreek.co.uk';
+}
+
+function connectToWebSocket(roomId, onMessageReceived) {
+	const host = getPartyKitHost();
+	const socket = new PartySocket({
+		host,
+		room: roomId ?? 'lobby',
+		party: partyName,
+		...(import.meta.env.DEV ? { protocol: 'ws' } : {})
+	});
 
 	socket.addEventListener('open', () => {
 		console.log(`Connected to WebSocket server from roomId: ${roomId}`);

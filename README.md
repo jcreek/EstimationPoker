@@ -4,11 +4,18 @@ A web app to allow scrum teams to easily perform estimations quickly and without
 There are two components to this:
 
 1. Frontend, built using SvelteKit
-2. WebSockets server, built using Node.js
+2. Realtime server, built using PartyKit (WebSocket-compatible)
 
 ## Frontend
 
-For full functionality, ensure there is a copy of the WebSockets server running. 
+For full functionality, ensure there is a PartyKit server running.
+
+### Environment variables
+
+The frontend uses PartyKit defaults unless overridden:
+
+- `PUBLIC_PARTYKIT_HOST`: PartyKit host (defaults to `localhost:1999` in dev, `websocket.jcreek.co.uk` in production)
+- `PUBLIC_PARTYKIT_PARTY`: Party name (defaults to `main`)
 
 ### Developing
 
@@ -44,12 +51,14 @@ This favicon was [generated](https://favicon.io/favicon-generator/) using the fo
 
 ### Developing
 
-Once you've installed dependencies with `npm install`, start a development server:
+Install dependencies in `src/server`, then run the PartyKit dev server:
 
 ```bash
-npm run dev
+cd src/server
+npm install
+npx partykit dev
 ```
 
 ### Deploying
 
-See the README in `src/server` for details.
+See the README in `src/server` for PartyKit deployment details.
