@@ -1,34 +1,31 @@
-# Web Sockets Server
+# Realtime Server (PartyKit)
+
+This folder contains the PartyKit server that powers realtime estimation.
+
+## Developing locally
+
+```bash
+cd src/server
+npm install
+npx partykit dev
+```
+
+By default the PartyKit dev server runs on `localhost:1999`. The frontend connects to that host when `PUBLIC_PARTYKIT_HOST` is not set.
 
 ## Deploying
 
-Use Docker to deploy this.
+PartyKit manages the server deployment. From this folder:
 
-Navigate to this folder and run `docker build -t estimation-ws-server .` to build the image.
+```bash
+cd src/server
+npx partykit deploy
+```
 
-Run it using `docker run -it --rm -p 8080:8080 estimation-ws-server`
+You will be prompted to authenticate on first deploy. The PartyKit app name is defined in `partykit.json`.
 
-## Deploying to Heroku
+## Frontend configuration
 
-### Install the Heroku CLI
+Set the following env vars in Netlify:
 
-Download and install the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-command-line).
-
-If you haven't already, log in to your Heroku account and follow the prompts to create a new SSH public key.
-
-`heroku login`
-
-### Clone the repository
-
-Use Git to clone `your-app-name`'s source code to your local machine.
-
-`heroku git:clone -a your-app-name`
-`cd your-app-name`
-
-### Deploy your changes
-
-Make some changes to the code you just cloned and deploy them to Heroku using Git.
-
-`git add .`
-`git commit -am "Your commit message"`
-`git push heroku main`
+- `PUBLIC_PARTYKIT_HOST`: the PartyKit host (for example `websocket-server-party.jcreek.partykit.dev`)
+- `PUBLIC_PARTYKIT_PARTY`: optional party name (defaults to `main`)
