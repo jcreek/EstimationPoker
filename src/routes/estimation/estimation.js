@@ -6,14 +6,17 @@ function generateId() {
 	return id;
 }
 
-const partyHost = import.meta.env.PUBLIC_PARTYKIT_HOST;
+const partyHost = import.meta.env.PUBLIC_PARTYKIT_HOST?.trim();
 const partyName = import.meta.env.PUBLIC_PARTYKIT_PARTY || 'main';
 
 function getPartyKitHost() {
 	if (partyHost) {
 		return partyHost;
 	}
-	return import.meta.env.DEV ? 'localhost:1999' : 'websocket.jcreek.co.uk';
+	if (import.meta.env.DEV) {
+		return 'localhost:1999';
+	}
+	throw new Error('PUBLIC_PARTYKIT_HOST is not set for this build.');
 }
 
 function connectToWebSocket(roomId, onMessageReceived) {
